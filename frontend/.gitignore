@@ -28,3 +28,13 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+
+# Dependencias de Node.js
+node_modules/
+
+# Archivos de subidas o uploads
+uploads/
+
+# Otros archivos generados (ejemplo común)
+*.log
+.DS_Store

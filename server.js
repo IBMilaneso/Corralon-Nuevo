@@ -1,116 +1,146 @@
-// server.js
+// server.js (Versión 2.0 - Conectado a MySQL)
 
 const express = require('express');
-const cors = require('cors'); // Para permitir la comunicación
-const multer = require('multer'); // Para manejar archivos
+const cors = require('cors');
+const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const mysql = require('mysql2/promise'); // <-- ¡NUEVO! Importamos el conector
 
 const app = express();
 const port = 3000;
 
-let vehiculosDB = [];
-
-// Función de ayuda para saber si un timestamp (como nuestro ID) es de hoy
-function esDeHoy(timestamp) {
-  const hoy = new Date();
-  const fechaTimestamp = new Date(timestamp);
-  return fechaTimestamp.setHours(0, 0, 0, 0) === hoy.setHours(0, 0, 0, 0);
-}
+// ===========================================
+// == CONEXIÓN A BASE DE DATOS ==
+// ===========================================
+// Creamos un "pool" de conexiones. Es más eficiente que
+// crear una conexión nueva cada vez.
+const pool = mysql.createPool({
+  host: '127.0.0.1',       // 'localhost' es lo mismo
+  user: 'root',            // El usuario que configuraste
+  password: 'P@l4br4S3cr3t4&Fuerte', // <-- ¡CAMBIA ESTO!
+  database: 'corralon_bd', // El nombre de tu base de datos
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+});
 
 // --- Middlewares ---
-// se comunica el forntend con el backend y server
-app.use(cors()); 
-// el server.js entiende datos json
+app.use(cors());
 app.use(express.json());
-// el servidor entiende los datos del forms
 app.use(express.urlencoded({ extended: true }));
-// la carpeta uploads es accesible publicamente
 app.use('/uploads', express.static('uploads'));
 
-
-// --- Configuración de Multer para guardar archivos ---
+// --- Configuración de Multer (Sin cambios) ---
 const uploadDir = 'uploads/';
-// Crea la carpeta 'uploads' si no existe
 if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
+  fs.mkdirSync(uploadDir);
 }
-
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadDir); // Le dice a Multer que guarde los archivos en la carpeta 'uploads/'
-  },
-  filename: function (req, file, cb) {
-    // Crea un nombre de archivo único para evitar sobreescribir imágenes
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
-
 const upload = multer({ storage: storage });
 
 
-// --- Rutas de la API ---
-app.get('/', (req, res) => {
-  res.send('¡El servidor del corralón está funcionando y listo para recibir datos!');
+// ===========================================
+// == RUTAS DE LA API (MODIFICADAS) ==
+// ===========================================
+
+// --- REGISTRAR UN VEHÍCULO (AHORA CON SQL) ---
+app.post('/api/registrar-vehiculo', upload.array('fotos', 10), async (req, res) => {
+  try {
+    // 1. Obtenemos los datos del formulario
+    const { placa, marca, modelo, anio, color, titulo, motivo } = req.body;
+    
+    // 2. Preparamos las fotos
+    const fotosGuardadas = req.files ? req.files.map(file => file.path) : [];
+    // Convertimos el array de fotos en un texto JSON para guardarlo
+    const fotosJson = JSON.stringify(fotosGuardadas);
+
+    // 3. Creamos la consulta SQL
+    const sql = `
+      INSERT INTO vehiculos (placa, marca, modelo, anio, color, titulo, motivo, fotos)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    
+    // 4. Ejecutamos la consulta
+    await pool.query(sql, [placa, marca, modelo, anio, color, titulo, motivo, fotosJson]);
+    
+    res.status(200).json({ message: '¡Vehículo registrado en la BD!' });
+
+  } catch (error) {
+    console.error('Error al registrar el vehículo en la BD:', error);
+    res.status(500).json({ message: 'Error en el servidor al registrar' });
+  }
 });
 
-// Esta es la nueva ruta que recibirá los datos del formulario
-// 'upload.array('fotos', 10)' significa: "Espera un campo llamado 'fotos' que puede tener hasta 10 archivos"
-app.post('/api/registrar-vehiculo', upload.array('fotos', 10), (req, res) => {
-  console.log('--- Datos de texto recibidos ---');
-  console.log(req.body); // Aquí estarán los datos de texto (placa, marca, etc.)
+// --- OBTENER TODOS LOS VEHÍCULOS (AHORA CON SQL) ---
+app.get('/api/vehiculos', async (req, res) => {
+  try {
+    const sql = "SELECT * FROM vehiculos ORDER BY fecha_ingreso DESC";
+    const [rows] = await pool.query(sql); // [rows] extrae solo el array de resultados
+    
+    // Convertimos el texto JSON de las fotos de nuevo a un array
+    const vehiculos = rows.map(v => ({
+      ...v,
+      fotos: JSON.parse(v.fotos || '[]') // Parsea las fotos
+    }));
 
-  console.log('--- Archivos recibidos ---');
-  console.log(req.files); // Aquí estará la información de las fotos subidas
-
-  const nuevoVehiculo = {
-    id: Date.now(), // Un ID único basado en la fecha
-    ...req.body,
-    fotos: req.files.map(file => file.path) // Guardamos solo las rutas de las fotos
-  };
-  vehiculosDB.push(nuevoVehiculo);
-
-  // Enviamos una respuesta de éxito al frontend
-  res.status(200).json({ message: 'Vehículo registrado exitosamente en el servidor!' });
+    res.status(200).json(vehiculos);
+  } catch (error) {
+    console.error('Error al obtener vehículos:', error);
+    res.status(500).json({ message: 'Error en el servidor' });
+  }
 });
 
-app.get('/api/vehiculos', (req, res) => {
-  res.status(200).json(vehiculosDB);
-});
+// --- OBTENER UN SOLO VEHÍCULO POR ID (AHORA CON SQL) ---
+app.get('/api/vehiculos/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const sql = "SELECT * FROM vehiculos WHERE id = ?";
+    const [rows] = await pool.query(sql, [id]);
 
-app.get('/api/stats', (req, res) => {
-  // Usamos .length para saber el total
-  const totalVehiculos = vehiculosDB.length;
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Vehículo no encontrado' });
+    }
 
-  // Usamos .filter() y nuestra función de ayuda para contar los de hoy
-  const ingresosHoy = vehiculosDB.filter(v => esDeHoy(v.id)).length;
-
-  // Aún no tenemos la lógica para "liberar" un auto,
-  // así que por ahora enviaremos 0.
-  const liberadosHoy = 0; 
-
-  // Enviamos los 3 números al frontend
-  res.status(200).json({
-    totalVehiculos,
-    ingresosHoy,
-    liberadosHoy
-  });
-});
-
-app.get('/api/vehiculos/:id', (req, res) => {
-  const id = req.params.id;
-  // Buscamos en nuestra "base de datos" el vehículo que coincida con el ID
-  const vehiculo = vehiculosDB.find(v => v.id.toString() === id);
-
-  if (vehiculo) {
+    const vehiculo = {
+      ...rows[0],
+      fotos: JSON.parse(rows[0].fotos || '[]')
+    };
+    
     res.status(200).json(vehiculo);
-  } else {
-    res.status(404).json({ message: 'Vehículo no encontrado' });
+  } catch (error) {
+    console.error('Error al obtener vehículo por ID:', error);
+    res.status(500).json({ message: 'Error en el servidor' });
+  }
+});
+
+// --- OBTENER ESTADÍSTICAS (AHORA CON SQL) ---
+app.get('/api/stats', async (req, res) => {
+  try {
+    // 1. Contar el total de vehículos
+    const [totalRows] = await pool.query("SELECT COUNT(*) as total FROM vehiculos");
+    
+    // 2. Contar los ingresos de hoy (CURDATE() es una función de MySQL)
+    const [hoyRows] = await pool.query("SELECT COUNT(*) as total FROM vehiculos WHERE DATE(fecha_ingreso) = CURDATE()");
+
+    res.status(200).json({
+      totalVehiculos: totalRows[0].total,
+      ingresosHoy: hoyRows[0].total,
+      liberadosHoy: 0 // Aún no tenemos esta lógica
+    });
+  } catch (error) {
+    console.error('Error al obtener estadísticas:', error);
+    res.status(500).json({ message: 'Error en el servidor' });
   }
 });
 
 // Iniciar el servidor
 app.listen(port, () => {
-  console.log(`Servidor escuchando en http://localhost:${port}`);
+  console.log(`Servidor (v2.0) escuchando en http://localhost:${port} y conectado a MySQL`);
 });
