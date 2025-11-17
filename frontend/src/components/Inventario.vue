@@ -9,7 +9,7 @@ const router = useRouter();
 onMounted(async () => {
   try {
     const response = await axios.get('http://localhost:3000/api/vehiculos');
-    inventario.value = response.data.reverse();
+    inventario.value = response.data;
   } catch (error) {
     console.error('Error al obtener el inventario:', error);
   }
@@ -60,7 +60,7 @@ function verDetalle(id){
           <td>{{ vehiculo.marca }}</td>
           <td>{{ vehiculo.modelo }}</td>
           <td>{{ vehiculo.anio }}</td>
-          <td>{{ formatFecha(vehiculo.id) }}</td>
+          <td>{{ formatFecha(vehiculo.fecha_ingreso) }}</td>
         </tr>
       </tbody>
     </table>

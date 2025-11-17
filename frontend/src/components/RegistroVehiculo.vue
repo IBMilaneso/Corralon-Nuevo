@@ -115,7 +115,7 @@ async function registrar() {
 
       <div class="campo">
         <label for="marca">Marca:</label>
-        <input type="text" id="marca" placeholder="¿Qué auto abandonaron ahora?" v-model="vehiculo.marca">
+        <input type="text" id="marca" placeholder="Ej. Nissan" v-model="vehiculo.marca">
       </div>
       
       <div class="campo">

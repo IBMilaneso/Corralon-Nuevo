@@ -24,7 +24,7 @@ onMounted(async () => {
     ]);
     
     stats.value = statsRes.data;
-    inventario.value = inventarioRes.data.reverse(); // Guardamos los vehículos (más nuevos primero)
+    inventario.value = inventarioRes.data; // Guardamos los vehículos (más nuevos primero)
 
   } catch (error) {
     console.error('Error al cargar los datos del dashboard:', error);
