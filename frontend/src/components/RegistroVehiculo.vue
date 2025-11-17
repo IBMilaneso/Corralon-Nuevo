@@ -1,4 +1,4 @@
-// RegistroVehiculo.vue
+
 
 <script setup>
 import { reactive, ref } from 'vue';
@@ -14,7 +14,6 @@ const opcionesTitulo = [
   'Otro'
 ];
 
-// ---> LA LÍNEA DEL ERROR ESTÁ AQUÍ <---
 // Asegúrate de que esta declaración exista y esté bien escrita.
 const vehiculo = reactive({
   placa: '',
@@ -101,12 +100,34 @@ async function registrar() {
     alert('Hubo un error al registrar el vehículo.');
   }
 }
+
+function resetForm() {
+  // 1. Resetea el objeto reactivo 'vehiculo'
+  Object.assign(vehiculo, {
+    placa: '',
+    marca: '',
+    modelo: '',
+    anio: null,
+    titulo: '',
+    color: '',
+    motivo: ''
+  });
+  
+  // 2. Resetea el array de fotos
+  fotos.value = [];
+}
 </script>
 
 <template>
-  <div class="formulario-container">
+  <div class="formulario-container"> <button 
+      type="button" 
+      @click="resetForm" 
+      class="btn-reset-lateral"
+    >
+      🔄️
+    </button>
+
     <h2>Otro para la colección: Registra el Vehículo</h2>
-    
     <form @submit.prevent="registrar">
       <div class="campo">
         <label for="placa">Placa:</label>
@@ -198,6 +219,7 @@ async function registrar() {
 
 <style scoped>
 .formulario-container {
+  position: relative;
   max-width: 600px;
   margin: 2rem auto;
   padding: 2rem;
@@ -350,6 +372,30 @@ button:hover {
 
 .btn-eliminar-foto:hover {
   background-color: #dc3545; /* Rojo al pasar el mouse */
+}
+
+.btn-reset-lateral{
+  position: absolute;
+  top: 0;
+  transform: translateX(calc(-100% - 3rem));
+  width: 70px;
+  height:100%;
+  background-color: #01655c;
+  border:none;
+  border-radius: 8px;
+  color: white;
+  font-size: 2.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: background-color 0.3s;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.btn-reset-lateral:hover {
+  background-color: #c82333; /* Tu color rojo de hover */
 }
 
 </style>
