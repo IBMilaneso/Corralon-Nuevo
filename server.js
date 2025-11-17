@@ -51,7 +51,7 @@ const upload = multer({ storage: storage });
 // ===========================================
 
 // --- REGISTRAR UN VEHÍCULO (AHORA CON SQL) ---
-app.post('/api/registrar-vehiculo', upload.array('fotos', 10), async (req, res) => {
+app.post('/api/registrar-vehiculo', upload.array('fotos', 20), async (req, res) => {
   try {
     // 1. Obtenemos los datos del formulario
     const { placa, marca, modelo, anio, color, titulo, motivo } = req.body;

@@ -28,11 +28,45 @@ const vehiculo = reactive({
 
 const fotos = ref([]);
 const fotoPrincipalPreview = ref(null);
+
 function handleFileUpload(event) {
-  const archivos = event.target.files;
-  if (!archivos.length) return;
-  fotos.value = Array.from(archivos);
-  fotoPrincipalPreview.value = URL.createObjectURL(archivos[0]);
+  const archivosNuevos = event.target.files;
+  if (!archivosNuevos.length) return;
+
+  const limiteFotos = 20;
+  const espacioDisponible = limiteFotos - fotos.value.length;
+
+  if (espacioDisponible <= 0) {
+    alert('Ya has alcanzado el límite de 20 fotos.');
+    event.target.value = ''; // Limpia el input
+    return;
+  }
+
+  let archivosParaAgregar = Array.from(archivosNuevos);
+
+  // Si la nueva selección excede el espacio, recorta la selección
+  if (archivosNuevos.length > espacioDisponible) {
+    alert(`Solo puedes agregar ${espacioDisponible} fotos más. Se agregarán las primeras ${espacioDisponible} de tu selección.`);
+    archivosParaAgregar = archivosParaAgregar.slice(0, espacioDisponible);
+  }
+
+  // Mapea los archivos al formato { file, url }
+  const nuevosObjetosFoto = archivosParaAgregar.map(file => {
+    return {
+      file: file,
+      url: URL.createObjectURL(file)
+    };
+  });
+
+  // AÑADE las nuevas fotos al array existente
+  fotos.value.push(...nuevosObjetosFoto);
+  
+  // Limpia el input para permitir seleccionar más archivos
+  event.target.value = '';
+}
+
+function eliminarFoto(index){
+  fotos.value.splice(index, 1);
 }
 
 async function registrar() {
@@ -45,8 +79,8 @@ async function registrar() {
   }
 
   // 3. Añadir todos los archivos de las fotos
-  for (const foto of fotos.value) {
-    formData.append('fotos', foto); // El nombre 'fotos' debe coincidir con el del backend
+  for (const fotoObj of fotos.value) {
+  formData.append('fotos', fotoObj.file); 
   }
 
   // 4. Enviar los datos al servidor usando Axios
@@ -137,9 +171,22 @@ async function registrar() {
           @change="handleFileUpload"
         >
         
-        <div v-if="fotoPrincipalPreview" class="foto-preview">
-          <img :src="fotoPrincipalPreview" alt="Vista previa de la foto principal">
-        </div>
+        <div v-if="fotos.length > 0" class="foto-preview-gallery">
+          <div 
+            v-for="(foto, index) in fotos" 
+            :key="foto.url" 
+            class="foto-preview-card"
+          >
+            <img :src="foto.url" alt="Vista previa">
+
+            <button 
+              type="button" 
+              @click.stop="eliminarFoto(index)" 
+              class="btn-eliminar-foto"
+            >
+              &times; </button>
+          </div>
+      </div>
       </div>
 
       <button type="submit">¡Registrar y Multar!</button>
@@ -249,6 +296,60 @@ button:hover {
   max-height: 250px;
   border-radius: 8px;
   border: 2px solid #ddd;
+}
+
+.foto-preview-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.foto-preview-card {
+  position: relative; /* Clave para el botón 'X' */
+  width: 120px;
+  height: 90px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+}
+
+.foto-preview-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* --- Estilos para el botón 'X' --- */
+.btn-eliminar-foto {
+  position: absolute; /* Se posiciona sobre la tarjeta */
+  top: 4px;
+  right: 4px;
+  
+  /* Hacemos el botón pequeño y redondo */
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  
+  /* Centramos la 'X' */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 0;
+  padding-bottom: 2px; /* Ajuste visual */
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-eliminar-foto:hover {
+  background-color: #dc3545; /* Rojo al pasar el mouse */
 }
 
 </style>
