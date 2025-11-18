@@ -22,7 +22,7 @@ function formatFecha(timestamp) {
 }
 
 function verDetalle(id){
-  router.push({ name: 'vehiculoDetalle', params: { id } });
+  router.push({ name: 'vehiculoDetalle', params: { id }, query: { modo: 'editar' } });
 }
 </script>
 

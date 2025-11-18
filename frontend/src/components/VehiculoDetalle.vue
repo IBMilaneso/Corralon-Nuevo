@@ -1,13 +1,17 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router'; // Importamos los hooks del router
 import axios from 'axios';
+import EditarVehiculo from './EditarVehiculo.vue';
 
 const route = useRoute(); // Contiene información de la URL actual
+const puedeEditar = computed(() => route.query.modo === 'editar');
 const router = useRouter(); // Nos permite navegar
 
 const vehiculo = ref(null); // Aquí guardaremos los datos del vehículo
 const vehiculoId = route.params.id; // Obtenemos el ID de la URL
+
+const mostrarEditor = ref(false);
 
 // Esta función se ejecuta cuando el componente se carga
 onMounted(async () => {
@@ -32,7 +36,13 @@ function regresar() {
       &larr; Regresar
     </button>
 
+    <button v-if="puedeEditar" @click="mostrarEditor = !mostrarEditor" class="btn-editar">
+      ✏️ Editar Vehículo
+    </button>
+
     <h1>Detalles de: {{ vehiculo.marca }} {{ vehiculo.modelo }} ({{ vehiculo.placa }})</h1>
+
+    <EditarVehiculo v-if="mostrarEditor && puedeEditar" :idVehiculo="vehiculoId" />
 
     <div class="galeria-fotos">
       <img 
@@ -104,4 +114,21 @@ function regresar() {
 .lista-detalles strong {
   color: #34495e;
 }
+
+.btn-editar {
+  background-color: #01655c; 
+  color: white;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  margin-left: 10px; /* Espacio entre botones */
+  transition: background-color 0.3s;
+}
+.btn-editar:hover {
+  background-color: #42b983;
+}
+
 </style>

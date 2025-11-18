@@ -140,6 +140,33 @@ app.get('/api/stats', async (req, res) => {
   }
 });
 
+// ===========================================
+// == NUEVA RUTA: ACTUALIZAR VEHÍCULO (PUT) ==
+// ===========================================
+app.put('/api/vehiculos/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    // Obtenemos solo los datos de texto del body
+    const { placa, marca, modelo, anio, color, titulo, motivo } = req.body;
+
+    const sql = `
+      UPDATE vehiculos 
+      SET 
+        placa = ?, marca = ?, modelo = ?, anio = ?, 
+        color = ?, titulo = ?, motivo = ?
+      WHERE id = ?
+    `;
+
+    await pool.query(sql, [placa, marca, modelo, anio, color, titulo, motivo, id]);
+
+    res.status(200).json({ message: 'Se actualizaron los datos del vehiculo' });
+
+  } catch (error) {
+    console.error('Error al actualizar el vehículo:', error);
+    res.status(500).json({ message: 'Error en el servidor al actualizar' });
+  }
+});
+
 // Iniciar el servidor
 app.listen(port, () => {
   console.log(`Servidor (v2.0) escuchando en http://localhost:${port} y conectado a MySQL`);
