@@ -15,6 +15,9 @@ const mostrarEditor = ref(false);
 const isModalVisible = ref(false);
 const selectedImageUrl = ref('');
 
+const estatusOpciones = ['Sin especificar', 'Para triturar', 'Para vender', 'Liberar'];
+const estatusMensaje = ref('');
+
 // Esta función se ejecuta cuando el componente se carga
 onMounted(async () => {
   try {
@@ -40,6 +43,32 @@ function closeModal() {
   isModalVisible.value = false;
 }
 
+async function actualizarEstatus() {
+  if (!vehiculo.value) return;
+
+  try {
+    estatusMensaje.value = 'Guardando...';
+    const nuevoEstatus = vehiculo.value.estatus;
+
+    await axios.patch(`http://localhost:3000/api/vehiculos/${vehiculo.value.id}/estatus`, {
+      estatus: nuevoEstatus
+    });
+
+    // Si eligen "Liberar", hacemos lo que dijiste: lo borramos
+    if (nuevoEstatus === 'Liberar') {
+      // Aún no hemos hecho esta parte, ¡pero es el plan!
+      // Por ahora, solo lo marcamos.
+      estatusMensaje.value = '¡Estatus "Liberar" guardado!';
+    } else {
+      estatusMensaje.value = '¡Estatus actualizado!';
+    }
+
+  } catch (error) {
+    estatusMensaje.value = 'Error al guardar.';
+    console.error('Error actualizando estatus:', error);
+  }
+}
+
 </script>
 
 <template>
@@ -53,6 +82,29 @@ function closeModal() {
     </button>
 
     <h1>Detalles de: {{ vehiculo.marca }} {{ vehiculo.modelo }} ({{ vehiculo.placa }})</h1>
+
+    <ul class="lista-detalles">
+      </ul>
+
+    <div v-if="puedeEditar" class="estatus-container">
+      <hr>
+      <h3>Cambiar Estatus del Vehículo</h3>
+      <p>La selección se guarda automáticamente.</p>
+      <select 
+        v-model="vehiculo.estatus" 
+        @change="actualizarEstatus"
+        class="estatus-select"
+      >
+        <option 
+          v-for="opcion in estatusOpciones" 
+          :key="opcion" 
+          :value="opcion"
+        >
+          {{ opcion }}
+        </option>
+      </select>
+      <span v-if="estatusMensaje" class="estatus-feedback">{{ estatusMensaje }}</span>
+    </div>
 
     <EditarVehiculo v-if="mostrarEditor && puedeEditar" :idVehiculo="vehiculoId" />
 
@@ -188,6 +240,33 @@ function closeModal() {
   object-fit: contain; /* Mantiene la proporción de la imagen */
   border-radius: 8px;
   cursor: default; /* El cursor normal sobre la imagen */
+}
+
+/* --- Estilos para el selector de Estatus --- */
+.estatus-container {
+  margin-top: 2rem;
+  padding-top: 1rem;
+}
+.estatus-container h3 {
+  color: #fff; /* O ajusta al color de tu tema */
+}
+.estatus-container p {
+  color: #000000ff;
+  font-size: 0.9rem;
+}
+.estatus-select {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+.estatus-feedback {
+  display: block;
+  margin-top: 0.5rem;
+  font-weight: bold;
+  color: #42b983; /* Verde éxito */
 }
 
 </style>
