@@ -1,26 +1,57 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue'; // <-- 1. Importar computed
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
-const inventario = ref([]);
+const inventario = ref([]); // Lista completa de la BD
 const router = useRouter();
+const terminoBusqueda = ref(''); // <-- 2. Nuevo ref para la búsqueda
 
+// Pedir todos los vehículos (esto no cambia)
 onMounted(async () => {
   try {
     const response = await axios.get('http://localhost:3000/api/vehiculos');
-    inventario.value = response.data;
+    inventario.value = response.data; // La BD ya los manda ordenados
   } catch (error) {
     console.error('Error al obtener el inventario:', error);
   }
 });
 
-// Función para formatear la fecha que viene del servidorg
+// --- 3. NUEVA PROPIEDAD COMPUTADA PARA FILTRAR ---
+const inventarioFiltrado = computed(() => {
+  // Si la barra está vacía, muestra todo
+  if (!terminoBusqueda.value) {
+    return inventario.value;
+  }
+
+  const busqueda = terminoBusqueda.value.toLowerCase().trim();
+
+  // Filtra la lista basándose en el término de búsqueda
+  return inventario.value.filter(vehiculo => {
+    const placa = (vehiculo.placa || '').toLowerCase();
+    const marca = (vehiculo.marca || '').toLowerCase();
+    const modelo = (vehiculo.modelo || '').toLowerCase();
+    const color = (vehiculo.color || '').toLowerCase();
+    const anio = (vehiculo.anio || '').toString();
+
+    return (
+      placa.includes(busqueda) ||
+      marca.includes(busqueda) ||
+      modelo.includes(busqueda) ||
+      color.includes(busqueda) ||
+      anio.includes(busqueda)
+    );
+  });
+});
+// --- Fin de la propiedad computada ---
+
+// Función para formatear la fecha (no cambia)
 function formatFecha(timestamp) {
   if (!timestamp) return 'No registrada';
   return new Date(timestamp).toLocaleDateString('es-MX');
 }
 
+// Función para ver detalle (no cambia)
 function verDetalle(id){
   router.push({ name: 'vehiculoDetalle', params: { id }, query: { modo: 'editar' } });
 }
@@ -29,8 +60,19 @@ function verDetalle(id){
 <template>
   <div class="inventario-view">
     <div class="header-banner">
-      <h1>🚗 Inventario Actual del Corralón</h1>
-      <p>Aquí puedes ver todos los vehículos actualmente bajo resguardo.</p>
+      <div class="banner-info">
+        <h1>🚗 Inventario Actual del Corralón</h1>
+        <p>Aquí puedes ver todos los vehículos actualmente bajo resguardo.</p>
+      </div>
+      
+      <div class="search-bar-container">
+        <input 
+          type="text" 
+          v-model="terminoBusqueda" 
+          placeholder="Buscar por placa, marca, modelo..." 
+          class="search-input"
+        >
+      </div>
     </div>
 
     <table class="inventario-table">
@@ -46,8 +88,7 @@ function verDetalle(id){
         </tr>
       </thead>
       <tbody>
-      <tr v-for="vehiculo in inventario" :key="vehiculo.id" @click="verDetalle(vehiculo.id)">
-        
+      <tr v-for="vehiculo in inventarioFiltrado" :key="vehiculo.id" @click="verDetalle(vehiculo.id)">
           <td>
             <img 
               v-if="vehiculo.fotos && vehiculo.fotos.length > 0" 
@@ -65,7 +106,10 @@ function verDetalle(id){
       </tbody>
     </table>
 
-    <p v-if="inventario.length === 0" class="empty-message">No hay vehículos registrados en el inventario.</p>
+    <p v-if="inventarioFiltrado.length === 0" class="empty-message">
+      <span v-if="terminoBusqueda">No se encontraron vehículos que coincidan con "{{ terminoBusqueda }}".</span>
+      <span v-else>No hay vehículos registrados en el inventario.</span>
+    </p>
   </div>
 </template>
 
@@ -82,6 +126,10 @@ function verDetalle(id){
   border-radius: 8px;
   margin-bottom: 2rem;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .header-banner h1 {
@@ -142,4 +190,27 @@ tbody tr:hover {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* --- Estilos para el buscador chiquito --- */
+.search-bar-container {
+  width: 100%;
+  max-width: 400px; /* Esto lo hace "chiquito" y no ocupa todo el ancho */
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.3); /* Borde claro */
+  background-color: rgba(255, 255, 255, 0.1); /* Fondo oscuro transparente */
+  color: white; /* Texto blanco */
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
 </style>
