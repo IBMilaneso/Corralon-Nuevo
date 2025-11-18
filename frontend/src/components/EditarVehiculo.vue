@@ -10,47 +10,111 @@ const props = defineProps({
   }
 });
 
-// Usamos ref() en lugar de reactive() porque los datos llegarán asíncronamente
-const vehiculo = ref(null);
-const mensaje = ref(''); // Para mostrar mensajes de éxito o error
+const vehiculo = ref(null); // Guardará los datos de texto y fotos EXISTENTES
+const fotosNuevas = ref([]); // Guardará las fotos NUEVAS que seleccione el usuario
+const mensaje = ref('');
 const anioActual = new Date().getFullYear();
 const opcionesTitulo = [
   'Factura Original', 'Refacturado con Copia de Origen', 'Pedimento de Importación',
   'Solo Tarjeta de Circulación', 'Sin Documentos', 'Otro'
 ];
 
-// 1. Cuando el componente se carga, busca los datos del vehículo
+// 1. Cargar los datos del vehículo al iniciar
 onMounted(async () => {
   try {
     const response = await axios.get(`http://localhost:3000/api/vehiculos/${props.idVehiculo}`);
     vehiculo.value = response.data;
   } catch (error) {
     console.error("Error cargando datos para editar:", error);
-    mensaje.value = "Error: No se pudieron cargar los datos.";
   }
 });
 
-// 2. Función para guardar los cambios
+// 2. Función para GUARDAR CAMBIOS (Ahora usa FormData)
 async function guardarCambios() {
   try {
     mensaje.value = 'Guardando...';
-    // Usamos PUT para enviar los datos de texto
-    const response = await axios.put(`http://localhost:3000/api/vehiculos/${props.idVehiculo}`, vehiculo.value);
+
+    // Usamos FormData para poder enviar texto y archivos juntos
+    const formData = new FormData();
+
+    // Agregamos todos los campos de texto
+    formData.append('placa', vehiculo.value.placa);
+    formData.append('marca', vehiculo.value.marca);
+    formData.append('modelo', vehiculo.value.modelo);
+    formData.append('anio', vehiculo.value.anio);
+    formData.append('color', vehiculo.value.color);
+    formData.append('titulo', vehiculo.value.titulo);
+    formData.append('motivo', vehiculo.value.motivo);
+
+    // Agregamos la lista de fotos existentes que CONSERVAMOS
+    formData.append('fotosActualesJson', JSON.stringify(vehiculo.value.fotos));
+
+    // Agregamos los archivos de las fotos NUEVAS
+    for (const fotoObj of fotosNuevas.value) {
+      formData.append('fotosNuevas', fotoObj.file);
+    }
+
+    // Enviamos todo usando PUT
+    const response = await axios.put(`http://localhost:3000/api/vehiculos/${props.idVehiculo}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+
     mensaje.value = response.data.message;
+    // Opcional: recargar los datos para ver cambios
+    onMounted(); 
+    fotosNuevas.value = [];
+
   } catch (error) {
     console.error("Error al guardar cambios:", error);
     mensaje.value = "Error al guardar los cambios.";
   }
+}
+
+// --- FUNCIONES DE MANEJO DE FOTOS ---
+
+// 3. Eliminar una foto que YA ESTABA en la BD
+function eliminarFotoExistente(index) {
+  vehiculo.value.fotos.splice(index, 1);
+}
+
+// 4. Agregar fotos NUEVAS (similar a RegistroVehiculo)
+function handleFileUpload(event) {
+  const archivosNuevos = event.target.files;
+  if (!archivosNuevos.length) return;
+
+  const limiteFotos = 20 - (vehiculo.value.fotos.length + fotosNuevas.value.length);
+  if (limiteFotos <= 0) {
+    alert('Ya has alcanzado el límite de 20 fotos.');
+    return;
+  }
+
+  let archivosParaAgregar = Array.from(archivosNuevos).slice(0, limiteFotos);
+
+  const nuevosObjetosFoto = archivosParaAgregar.map(file => ({
+    file: file,
+    url: URL.createObjectURL(file)
+  }));
+
+  fotosNuevas.value.push(...nuevosObjetosFoto);
+  event.target.value = ''; // Limpia el input
+}
+
+// 5. Eliminar una foto NUEVA (de la vista previa)
+function eliminarFotoNueva(index) {
+  fotosNuevas.value.splice(index, 1);
 }
 </script>
 
 <template>
   <div v-if="vehiculo" class="formulario-edicion">
     <hr>
-    <h2>Editar Datos del Vehículo</h2>
-    <p>Ajusta la información y haz clic en "Guardar Cambios". (La edición de fotos vendrá después).</p>
+    <h2>Editar Vehículo</h2>
+    <p>Ajusta la información, añade o quita fotos y haz clic en "Guardar Cambios".</p>
 
     <form @submit.prevent="guardarCambios">
+      
       <div class="campo">
         <label>Placa:</label>
         <input type="text" v-model="vehiculo.placa">
@@ -74,6 +138,7 @@ async function guardarCambios() {
       <div class="campo">
         <label>Tipo de Título/Documento:</label>
         <select v-model="vehiculo.titulo">
+          <option disabled value="">-- Selecciona una opción --</option>
           <option v-for="opcion in opcionesTitulo" :key="opcion" :value="opcion">{{ opcion }}</option>
         </select>
       </div>
@@ -82,8 +147,39 @@ async function guardarCambios() {
         <textarea rows="3" v-model="vehiculo.motivo"></textarea>
       </div>
 
-      <button type="submit">Guardar Cambios</button>
+      <div class="campo">
+        <label>Fotos Actuales (Haz clic en 'X' para eliminar)</label>
+        <div class="foto-preview-gallery">
+          <div v-for="(foto, index) in vehiculo.fotos" :key="foto" class="foto-preview-card">
+            <img :src="`http://localhost:3000/${foto}`" alt="Foto existente">
+            <button type="button" @click.stop="eliminarFotoExistente(index)" class="btn-eliminar-foto">&times;</button>
+          </div>
+        </div>
+      </div>
 
+      <div class="campo">
+        <label>Añadir Fotos Nuevas (Límite 20 total)</label>
+        <label for="file-upload-edit" class="input-file-trigger-edit">
+          Seleccionar archivos...
+        </label>
+        <input 
+          type="file" 
+          id="file-upload-edit"
+          class="input-file-hidden"
+          multiple 
+          accept="image/*" 
+          @change="handleFileUpload"
+        >
+        
+        <div v-if="fotosNuevas.length > 0" class="foto-preview-gallery">
+          <div v-for="(foto, index) in fotosNuevas" :key="foto.url" class="foto-preview-card">
+            <img :src="foto.url" alt="Vista previa">
+            <button type="button" @click.stop="eliminarFotoNueva(index)" class="btn-eliminar-foto">&times;</button>
+          </div>
+        </div>
+      </div>
+      
+      <button type="submit">Guardar Cambios</button>
       <p v-if="mensaje" class="mensaje-feedback">{{ mensaje }}</p>
     </form>
   </div>
@@ -116,4 +212,64 @@ button {
 }
 button:hover { background-color: #36a374; }
 .mensaje-feedback { font-weight: bold; margin-top: 1rem; }
+
+.foto-preview-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+  background-color: #34495e; /* Fondo para la galería */
+  padding: 1rem;
+  border-radius: 6px;
+}
+.foto-preview-card {
+  position: relative;
+  width: 120px;
+  height: 90px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+}
+.foto-preview-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.btn-eliminar-foto {
+  position: absolute;
+  top: 4px; right: 4px;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white; border: none;
+  display: flex; justify-content: center; align-items: center;
+  font-size: 1.2rem; line-height: 1; padding: 0; padding-bottom: 2px;
+  cursor: pointer; transition: background-color 0.2s;
+}
+.btn-eliminar-foto:hover {
+  background-color: #dc3545;
+}
+
+/* --- Estilos para el botón de subir archivo (modo edición) --- */
+.input-file-hidden {
+  display: none;
+}
+.input-file-trigger-edit {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+  background-color: #525f76;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: 600;
+  color: white;
+}
+.input-file-trigger-edit:hover {
+  border-color: #42b983;
+  background-color: #44536d;
+}
+
 </style>

@@ -141,25 +141,44 @@ app.get('/api/stats', async (req, res) => {
 });
 
 // ===========================================
-// == NUEVA RUTA: ACTUALIZAR VEHÍCULO (PUT) ==
+// == RUTA PUT (ACTUALIZADA PARA FOTOS) ==
 // ===========================================
-app.put('/api/vehiculos/:id', async (req, res) => {
+app.put('/api/vehiculos/:id', upload.array('fotosNuevas', 20), async (req, res) => {
   try {
     const id = req.params.id;
-    // Obtenemos solo los datos de texto del body
+
+    // 1. Obtenemos los datos de texto
     const { placa, marca, modelo, anio, color, titulo, motivo } = req.body;
 
+    // 2. Obtenemos la lista de fotos existentes que el usuario DECIDIÓ CONSERVAR
+    const fotosActuales = JSON.parse(req.body.fotosActualesJson || '[]');
+
+    // 3. Obtenemos las fotos nuevas que se acaban de subir
+    const fotosNuevas = req.files ? req.files.map(f => f.path) : [];
+
+    // 4. Combinamos ambas listas
+    const fotosFinales = [...fotosActuales, ...fotosNuevas];
+
+    // 5. Convertimos la lista final a JSON para guardarla en la BD
+    const fotosJson = JSON.stringify(fotosFinales);
+
+    // 6. Creamos la consulta SQL para actualizar TODO
     const sql = `
       UPDATE vehiculos 
       SET 
         placa = ?, marca = ?, modelo = ?, anio = ?, 
-        color = ?, titulo = ?, motivo = ?
+        color = ?, titulo = ?, motivo = ?, fotos = ?
       WHERE id = ?
     `;
 
-    await pool.query(sql, [placa, marca, modelo, anio, color, titulo, motivo, id]);
+    // 7. Ejecutamos la consulta
+    await pool.query(sql, [
+      placa, marca, modelo, anio, color, titulo, motivo, 
+      fotosJson, // La nueva lista de fotos
+      id
+    ]);
 
-    res.status(200).json({ message: 'Se actualizaron los datos del vehiculo' });
+    res.status(200).json({ message: '¡Vehículo actualizado con éxito!' });
 
   } catch (error) {
     console.error('Error al actualizar el vehículo:', error);
