@@ -10,8 +10,10 @@ const router = useRouter(); // Nos permite navegar
 
 const vehiculo = ref(null); // Aquí guardaremos los datos del vehículo
 const vehiculoId = route.params.id; // Obtenemos el ID de la URL
-
 const mostrarEditor = ref(false);
+
+const isModalVisible = ref(false);
+const selectedImageUrl = ref('');
 
 // Esta función se ejecuta cuando el componente se carga
 onMounted(async () => {
@@ -28,6 +30,16 @@ onMounted(async () => {
 function regresar() {
   router.back(); // Este es el comando mágico
 }
+
+function openModal(imageUrl) {
+  selectedImageUrl.value = imageUrl;
+  isModalVisible.value = true;
+}
+
+function closeModal() {
+  isModalVisible.value = false;
+}
+
 </script>
 
 <template>
@@ -50,6 +62,7 @@ function regresar() {
         :key="index" 
         :src="`http://localhost:3000/${foto}`" 
         alt="Foto del vehículo"
+        @click="openModal(`http://localhost:3000/${foto}`)"
       >
     </div>
 
@@ -63,6 +76,18 @@ function regresar() {
 
   <div v-else>
     <p>Cargando detalles del vehículo...</p>
+  </div>
+
+  <div 
+    v-if="isModalVisible" 
+    class="image-modal-overlay" 
+    @click="closeModal"
+  >
+    <img 
+      :src="selectedImageUrl" 
+      alt="Vista ampliada" 
+      class="image-modal-content"
+      @click.stop >
   </div>
 </template>
 
@@ -129,6 +154,40 @@ function regresar() {
 }
 .btn-editar:hover {
   background-color: #42b983;
+}
+
+.galeria-fotos img {
+  cursor: pointer; /* Le dice al usuario que la imagen es clickeable */
+  transition: transform 0.2s;
+}
+
+.galeria-fotos img:hover {
+  transform: scale(1.05); /* Un pequeño efecto al pasar el mouse */
+}
+
+.image-modal-overlay {
+  position: fixed; /* Cubre toda la pantalla */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  
+  background-color: rgba(0, 0, 0, 0.85); /* Fondo negro semi-transparente */
+  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  z-index: 1000; /* Se asegura de que esté por encima de todo */
+  cursor: pointer;
+}
+
+.image-modal-content {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain; /* Mantiene la proporción de la imagen */
+  border-radius: 8px;
+  cursor: default; /* El cursor normal sobre la imagen */
 }
 
 </style>
