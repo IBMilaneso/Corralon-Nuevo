@@ -15,7 +15,7 @@
       <span class="icon">👁️‍🗨️</span> Buscar
       </router-link>
       <router-link to="/" class="nav-link">
-        <span class="icon">🥱</span> Mi Vehiculo
+        <span class="icon">🥱</span> P@l4br4S3cr3t4&Fuerte
       </router-link>
     </nav>
   </aside>

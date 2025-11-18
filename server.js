@@ -186,6 +186,28 @@ app.put('/api/vehiculos/:id', upload.array('fotosNuevas', 20), async (req, res) 
   }
 });
 
+
+// ===========================================
+// == NUEVA RUTA: ACTUALIZAR ESTATUS (PATCH) ==
+// ===========================================
+// Usamos PATCH porque es una actualización parcial
+app.patch('/api/vehiculos/:id/estatus', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { estatus } = req.body; // Recibimos el nuevo estatus
+
+    const sql = "UPDATE vehiculos SET estatus = ? WHERE id = ?";
+
+    await pool.query(sql, [estatus, id]);
+
+    res.status(200).json({ message: '¡Estatus actualizado con éxito!' });
+
+  } catch (error) {
+    console.error('Error al actualizar el estatus:', error);
+    res.status(500).json({ message: 'Error en el servidor al actualizar' });
+  }
+});
+
 // Iniciar el servidor
 app.listen(port, () => {
   console.log(`Servidor (v2.0) escuchando en http://localhost:${port} y conectado a MySQL`);
