@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router'; // Importamos los hooks del router
 import axios from 'axios';
 import EditarVehiculo from './EditarVehiculo.vue';
+import { reactive } from 'vue'; // <-- ASEGÚRATE DE IMPORTAR 'reactive'
 
 const route = useRoute(); // Contiene información de la URL actual
 const puedeEditar = computed(() => route.query.modo === 'editar');
@@ -17,6 +18,28 @@ const selectedImageUrl = ref('');
 
 const estatusOpciones = ['Sin especificar', 'Para triturar', 'Para vender', 'Liberar'];
 const estatusMensaje = ref('');
+
+const mostrarModalCita = ref(false);
+const datosCita = reactive({
+  nombre: '',
+  rfc: '',
+  licencia: '',
+  correo: ''
+});
+const mostrarBotonCita = computed(() => {
+  return !puedeEditar.value && vehiculo.value?.estatus === 'Para vender';
+});
+
+function agendarCita() {
+  // Por ahora, solo mostramos los datos en consola como pediste
+  console.log("--- CITA AGENDADA TEMPORALMENTE ---");
+  console.log(datosCita);
+  alert(`Cita agendada para ${datosCita.nombre}. (Datos guardados en memoria)`);
+  
+  // Cerramos el modal y limpiamos
+  mostrarModalCita.value = false;
+  Object.assign(datosCita, { nombre: '', rfc: '', licencia: '', correo: '' });
+}
 
 // Esta función se ejecuta cuando el componente se carga
 onMounted(async () => {
@@ -81,6 +104,14 @@ async function actualizarEstatus() {
       ✏️ Editar Vehículo
     </button>
 
+    <button 
+      v-if="mostrarBotonCita" 
+      @click="mostrarModalCita = true" 
+      class="btn-cita"
+    >
+      📅 Me interesa este auto
+    </button>
+
     <h1>Detalles de: {{ vehiculo.marca }} {{ vehiculo.modelo }} ({{ vehiculo.placa }})</h1>
 
     <ul class="lista-detalles">
@@ -141,6 +172,41 @@ async function actualizarEstatus() {
       class="image-modal-content"
       @click.stop >
   </div>
+
+<div v-if="mostrarModalCita" class="modal-overlay">
+      <div class="modal-form-card">
+        <h2>Agendar Cita para Ver Auto</h2>
+        <p>Por favor llene sus datos para contactarlo.</p>
+        
+        <form @submit.prevent="agendarCita">
+          <div class="campo">
+            <label>Nombre Completo:</label>
+            <input type="text" v-model="datosCita.nombre" required placeholder="Ej. Juan Pérez">
+          </div>
+          
+          <div class="campo">
+            <label>RFC:</label>
+            <input type="text" v-model="datosCita.rfc" required placeholder="RFC con homoclave">
+          </div>
+
+          <div class="campo">
+            <label>No. de Licencia:</label>
+            <input type="text" v-model="datosCita.licencia" required placeholder="Número de licencia vigente">
+          </div>
+
+          <div class="campo">
+            <label>Correo Electrónico:</label>
+            <input type="email" v-model="datosCita.correo" required placeholder="juan@ejemplo.com">
+          </div>
+
+          <div class="form-actions">
+            <button type="button" @click="mostrarModalCita = false" class="btn-cancelar">Cancelar</button>
+            <button type="submit" class="btn-confirmar">Confirmar Cita</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
 </template>
 
 <style scoped>
@@ -267,6 +333,79 @@ async function actualizarEstatus() {
   margin-top: 0.5rem;
   font-weight: bold;
   color: #42b983; /* Verde éxito */
+}
+
+/* --- Estilos para el Botón de Cita --- */
+.btn-cita {
+  background-color: #3498db; /* Azul brillante */
+  color: white;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  margin-left: 10px;
+  transition: background-color 0.3s;
+}
+.btn-cita:hover {
+  background-color: #2980b9;
+}
+
+/* --- Estilos para el Modal de Formulario --- */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex; justify-content: center; align-items: center;
+  z-index: 2000; /* Más alto que el modal de imagen */
+}
+
+.modal-form-card {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.modal-form-card h2 {
+  margin-top: 0;
+  color: #2c3e50;
+}
+.modal-form-card p {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+/* Reutilizamos estilos de inputs, pero aseguramos que se vean bien en el modal blanco */
+.modal-form-card input {
+  width: 100%;
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 1rem;
+}
+
+.btn-cancelar {
+  background-color: #95a5a6;
+  color: white; border: none; padding: 0.8rem 1.2rem;
+  border-radius: 4px; cursor: pointer; font-weight: bold;
+}
+.btn-confirmar {
+  background-color: #27ae60;
+  color: white; border: none; padding: 0.8rem 1.2rem;
+  border-radius: 4px; cursor: pointer; font-weight: bold;
 }
 
 </style>
