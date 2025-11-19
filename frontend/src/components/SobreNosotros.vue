@@ -13,7 +13,7 @@
       <div class="content">
         <h2>Sobre Nosotros</h2>
         <p>
-          Bienvenido a <strong>Corralink</strong>. No sabemos lo que hacemos, este es nuestro proyecto para ingenieria en software y esta incompleto pero
+          Bienvenido a <strong>Corralink</strong>. No sabemos lo que hacemos, este es nuestro proyecto para ingenieria en software y esta completo y
           funcional.
         </p>
         <p>
