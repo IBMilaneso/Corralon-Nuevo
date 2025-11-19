@@ -4,6 +4,7 @@ import RegistroVehiculo from '../components/RegistroVehiculo.vue'
 import Inventario from '../components/Inventario.vue'
 import Buscador from '../components/Buscador.vue'
 import VehiculoDetalle from '../components/VehiculoDetalle.vue';
+import SobreNosotros from '../components/SobreNosotros.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,6 +35,11 @@ const router = createRouter({
       path: '/vehiculo/:id', // El :id es un parámetro dinámico
       name: 'vehiculoDetalle',
       component: VehiculoDetalle
+    },
+    {
+      path: '/sobre-nosotros',
+      name: 'sobreNosotros',
+      component: SobreNosotros
     }
   ]
 })

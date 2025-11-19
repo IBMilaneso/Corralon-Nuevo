@@ -18,6 +18,9 @@
         <span class="icon">🥱</span> P@l4br4S3cr3t4&Fuerte
       </router-link>
     </nav>
+    <router-link to="/sobre-nosotros" class="nav-link about-link">
+      <span class="icon">ℹ️</span> Sobre Nosotros
+    </router-link>
   </aside>
 </template>
 
@@ -63,4 +66,18 @@
   color: #ffffff;
   font-weight: bold;
 }
+
+/* El truco del margen automático */
+.about-link {
+  margin-top: auto; /* Esto empuja el elemento al fondo del contenedor flex */
+  font-size: 0.9rem;
+  opacity: 0.8;
+  border-top: 1px solid rgba(255,255,255,0.1); /* Una línea sutil encima */
+}
+
+.about-link:hover {
+  opacity: 1;
+  background-color: rgba(255,255,255,0.1);
+}
+
 </style>
