@@ -1,37 +1,53 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router'; // <-- 1. Importamos el router
+import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import axios from 'axios';
 
-const router = useRouter(); // <-- 2. Lo inicializamos
-
-// Guardará las estadísticas
+const router = useRouter();
 const stats = ref({
   totalVehiculos: 0,
   ingresosHoy: 0,
   liberadosHoy: 0
 });
 
-// Guardará la lista de vehículos
-const inventario = ref([]); // <-- 3. Creamos el ref para el inventario
+const inventario = ref([]); // Lista completa sin ordenar
+const filtroSeleccionado = ref('Recientes'); 
 
+// onMounted: Pide todos los datos
 onMounted(async () => {
   try {
-    // Pedimos ambas cosas al mismo tiempo
     const [statsRes, inventarioRes] = await Promise.all([
       axios.get('http://localhost:3000/api/stats'),
       axios.get('http://localhost:3000/api/vehiculos')
     ]);
-    
+
     stats.value = statsRes.data;
-    inventario.value = inventarioRes.data; // Guardamos los vehículos (más nuevos primero)
+    inventario.value = inventarioRes.data; 
 
   } catch (error) {
     console.error('Error al cargar los datos del dashboard:', error);
   }
 });
 
-// 4. La función para navegar al detalle
+// --- PROPIEDAD COMPUTADA: FILTRA Y ORDENA ---
+const inventarioFiltrado = computed(() => {
+    let resultado = [...inventario.value]; 
+
+    // 1. FILTRO POR ESTATUS 
+    if (filtroSeleccionado.value === 'Venta') {
+        resultado = resultado.filter(v => v.estatus === 'Para vender');
+    } else if (filtroSeleccionado.value === 'Sin especificar') {
+        resultado = resultado.filter(v => v.estatus === 'Sin especificar');
+    }
+
+    // 2. ORDEN CRONOLÓGICO 
+    if (filtroSeleccionado.value === 'Viejos') {
+        resultado.reverse();
+    } 
+    
+    return resultado;
+});
+
 function verDetalle(id) {
   router.push({ name: 'vehiculoDetalle', params: { id } });
 }
@@ -46,30 +62,39 @@ function verDetalle(id) {
     </div>
     
     <div class="stats-container">
-    <div class="stat-card">
-      <h2>{{ stats.totalVehiculos }}</h2>
-      <p>Vehículos en Corralón</p>
-    </div>
+      <div class="stat-card">
+        <h2>{{ stats.totalVehiculos }}</h2>
+        <p>Vehículos en Corralón</p>
+      </div>
 
-    <div class="stat-card green">
-      <h2>{{ stats.ingresosHoy }}</h2>
-      <p>Ingresos de Hoy</p>
-    </div>
+      <div class="stat-card green">
+        <h2>{{ stats.ingresosHoy }}</h2>
+        <p>Ingresos de Hoy</p>
+      </div>
 
-    <div class="stat-card red">
-      <h2>{{ stats.liberadosHoy }}</h2>
-      <p>Liberados Hoy (Próximamente)</p>
+      <div class="stat-card red">
+        <h2>{{ stats.liberadosHoy }}</h2>
+        <p>Liberados Hoy (Próximamente)</p>
+      </div>
+    </div> <div class="filter-controls">
+        <label for="filtro">Filtrar Inventario:</label>
+        <select id="filtro" v-model="filtroSeleccionado" class="filter-select">
+            <option value="Recientes">📅 Más Recientes</option>
+            <option value="Viejos">⏳ Más Viejos</option>
+            <option disabled>--- ESTATUS ---</option>
+            <option value="Venta">💰 En Venta</option>
+            <option value="Sin especificar">❓ Sin Especificar</option>
+        </select>
     </div>
-</div>
-
+    
     <div class="gallery-header">
       <h2>Recién Llegados al Corralón</h2>
-      <p>Total: {{ stats.totalVehiculos }} vehículos</p>
+      <p>Mostrando {{ inventarioFiltrado.length }} de {{ inventario.length }} vehículos</p>
     </div>
 
     <div class="vehiculo-grid">
       <div 
-        v-for="vehiculo in inventario" 
+        v-for="vehiculo in inventarioFiltrado" 
         :key="vehiculo.id" 
         class="vehiculo-card" 
         @click="verDetalle(vehiculo.id)"
@@ -92,7 +117,7 @@ function verDetalle(id) {
       </div>
     </div>
     
-    <p v-if="inventario.length === 0" class="empty-message">Aún no hay vehículos registrados.</p>
+    <p v-if="inventarioFiltrado.length === 0" class="empty-message">Aún no hay vehículos registrados.</p>
 
   </div>
 </template>
@@ -125,6 +150,7 @@ function verDetalle(id) {
 .stats-container {
   display: flex;
   gap: 1.5rem;
+  /* Quitamos el margin-top exagerado si lo hubiera */
 }
 
 .stat-card {
@@ -151,17 +177,9 @@ function verDetalle(id) {
   border-color: #e74c3c;
 }
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-
-/* --- Estilos para la nueva galería --- */
 
 .gallery-header {
   display: flex;
@@ -169,31 +187,23 @@ function verDetalle(id) {
   align-items: center;
   margin-top: 2.5rem;
   margin-bottom: 1rem;
-  border-bottom: 1px solid #444; /* Línea divisora */
+  border-bottom: 1px solid #444;
   padding-bottom: 0.5rem;
 }
 
-.gallery-header h2 {
-  color: #fff;
-  margin: 0;
-}
-
-.gallery-header p {
-  color: #bdc3c7;
-  margin: 0;
-}
+.gallery-header h2 { color: #fff; margin: 0; }
+.gallery-header p { color: #bdc3c7; margin: 0; }
 
 .vehiculo-grid {
   display: grid;
-  /* El "3 columnas" que pediste */
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
 }
 
 .vehiculo-card {
-  position: relative; /* Clave para el banner superpuesto */
+  position: relative;
   border-radius: 8px;
-  overflow: hidden; /* Asegura que la imagen no se salga */
+  overflow: hidden;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
   cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -207,11 +217,10 @@ function verDetalle(id) {
 .card-img {
   width: 100%;
   height: 220px;
-  object-fit: cover; /* La imagen cubre el espacio sin deformarse */
+  object-fit: cover;
   display: block;
 }
 
-/* Estilo para cuando no hay foto */
 .card-img-placeholder {
   width: 100%;
   height: 220px;
@@ -222,36 +231,21 @@ function verDetalle(id) {
   background-color: #34495e;
   color: #95a5a6;
 }
-.card-img-placeholder span {
-  font-size: 3rem;
-}
+.card-img-placeholder span { font-size: 3rem; }
 
-/* --- EL BANNER SUPERPUESTO --- */
 .card-banner {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
   padding: 1rem;
-  box-sizing: border-box; /* Para que el padding no afecte el ancho */
-  
-  /* El truco del 1/4: un gradiente que se hace sólido */
+  box-sizing: border-box;
   background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 60%, rgba(0, 0, 0, 0));
-  
   color: white;
 }
 
-.card-banner h4 {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: bold;
-}
-
-.card-banner p {
-  margin: 0.25rem 0 0;
-  font-size: 0.9rem;
-  opacity: 0.8;
-}
+.card-banner h4 { margin: 0; font-size: 1.1rem; font-weight: bold; }
+.card-banner p { margin: 0.25rem 0 0; font-size: 0.9rem; opacity: 0.8; }
 
 .empty-message {
   text-align: center;
@@ -260,4 +254,25 @@ function verDetalle(id) {
   color: #777;
 }
 
+.filter-controls {
+  margin-top: 2rem; /* Espacio arriba del filtro */
+  padding-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-controls label {
+  color: white;
+  font-weight: bold;
+}
+
+.filter-select {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: white;
+  font-size: 1rem;
+  cursor: pointer;
+}
 </style>
