@@ -260,6 +260,30 @@ app.delete('/api/vehiculos/:id', async (req, res) => {
   }
 });
 
+// ===========================================
+// == RUTA: INICIAR SESIÓN (LOGIN) ==
+// ===========================================
+app.post('/api/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    
+    // Buscamos si existe un usuario con ese nombre Y esa contraseña
+    const sql = "SELECT * FROM usuarios WHERE username = ? AND password = ?";
+    const [rows] = await pool.query(sql, [username, password]);
+
+    if (rows.length > 0) {
+      // ¡Encontrado!
+      res.status(200).json({ success: true, message: 'Login correcto', user: rows[0].username });
+    } else {
+      // No coinciden
+      res.status(401).json({ success: false, message: 'Usuario o contraseña incorrectos' });
+    }
+  } catch (error) {
+    console.error('Error en login:', error);
+    res.status(500).json({ message: 'Error en el servidor' });
+  }
+});
+
 // Iniciar el servidor
 app.listen(port, () => {
   console.log(`Servidor (v2.0) escuchando en http://localhost:${port} y conectado a MySQL`);

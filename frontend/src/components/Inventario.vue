@@ -91,6 +91,7 @@ async function limpiarRegistrosViejos() {
 
 <template>
   <div class="inventario-view">
+    
     <div class="header-banner">
       <div class="banner-info">
         <h1>🚗 Inventario Actual</h1>
@@ -99,8 +100,10 @@ async function limpiarRegistrosViejos() {
       
       <div class="search-bar-container">
         <input 
-          type="text" v-model="terminoBusqueda" 
-          placeholder="Buscar por placa, marca..." class="search-input"
+          type="text" 
+          v-model="terminoBusqueda" 
+          placeholder="Buscar por placa, marca..." 
+          class="search-input"
         >
       </div>
     </div>
@@ -163,7 +166,11 @@ async function limpiarRegistrosViejos() {
 </template>
 
 <style scoped>
-/* ... Tus estilos anteriores del banner y buscador se mantienen igual ... */
+.inventario-view {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* --- Estilos para el nuevo banner --- */
 .header-banner {
   background: linear-gradient(to right, #34495e, #2c3e50);
   color: white;
@@ -175,9 +182,31 @@ async function limpiarRegistrosViejos() {
   justify-content: space-between;
   align-items: center;
 }
-/* ... (copia tus estilos de .search-bar-container y .search-input aquí si se perdieron) ... */
-.search-bar-container { width: 100%; max-width: 400px; }
-.search-input { width: 100%; padding: 0.75rem; border-radius: 6px; border: none; }
+
+.header-banner h1 { margin: 0; font-size: 1.8rem; }
+.header-banner p { margin: 0.5rem 0 0; opacity: 0.9; }
+
+/* --- Estilos Recuperados del Buscador --- */
+.search-bar-container {
+  width: 100%;
+  max-width: 400px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  box-sizing: border-box;
+  /* Estilo oscuro transparente */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
 
 /* ESTILOS DE LA TABLA */
 .inventario-table {
@@ -199,10 +228,19 @@ th { font-weight: 600; }
 tbody tr:hover { background-color: #f1f1f1; cursor: pointer; }
 
 .vehiculo-imagen {
-  width: 80px; height: 50px; object-fit: cover; border-radius: 4px;
+  /* Antes era 80px y 50px */
+  width: 160px;  /* Mucho más ancha */
+  height: 100px; /* Más alta para que se distinga bien */
+  
+  object-fit: cover; /* Asegura que la foto no se deforme */
+  border-radius: 6px; /* Bordes un poco más redondeados */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Una pequeña sombra para que resalte */
+  display: block; /* Ayuda a quitar espacios extraños */
 }
 
-/* --- NUEVOS ESTILOS --- */
+
+
+/* --- NUEVOS ESTILOS DE ADMINISTRACIÓN --- */
 .admin-toolbar {
     margin-bottom: 1rem;
     display: flex;
@@ -230,16 +268,26 @@ tbody tr:hover { background-color: #f1f1f1; cursor: pointer; }
 }
 .btn-trash:hover {
     background-color: #e74c3c;
-    color: white; /* El emoji no cambia de color, pero el fondo sí */
+    color: white; 
 }
 
-.acciones-td {
-    text-align: center;
-}
+.acciones-td { text-align: center; }
 
 .mensaje-exito {
     color: #27ae60;
     font-weight: bold;
     animation: fadeIn 0.5s;
+}
+
+.empty-message {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 1.1rem;
+  color: #777;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>
