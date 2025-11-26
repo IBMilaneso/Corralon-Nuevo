@@ -96,6 +96,6 @@ function cerrarSesion() {
 .bottom-links { margin-top: auto; display: flex; flex-direction: column; gap: 5px; }
 .login-btn { background-color: #2980b9; color: white; margin-top: 10px; }
 .login-btn:hover { background-color: #3498db; }
-.logout-btn { background-color: #c0392b; color: white; margin-top: 10px; justify-content: flex-start;}
+.logout-btn { background: linear-gradient(to right, #f41313ff, #f46a3dff); color: white; margin-top: 10px; justify-content: flex-start;}
 .logout-btn:hover { background-color: #e74c3c; }
 </style>
