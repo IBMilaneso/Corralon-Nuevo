@@ -61,8 +61,21 @@ function cerrarSesion() {
 
 <style scoped>
 .sidebar {
-  width: 250px; background-color: #2c3e50; color: white;
-  padding: 1.5rem; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box;
+  width: 250px;
+  
+  /* --- AQUÍ ESTÁ EL CAMBIO --- */
+  /* Degradado de arriba (to bottom). Cambia los colores a tu gusto */
+  background: linear-gradient(to bottom, #2c3e50, #0a0e12);
+  
+  color: white;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Ocupa toda la altura */
+  box-sizing: border-box;
+  
+  /* Opcional: Una sombra sutil a la derecha para separarlo del contenido */
+  box-shadow: 2px 0 10px rgba(0,0,0,0.3);
 }
 .sidebar h3 { text-align: center; margin-bottom: 2rem; font-size: 1.5rem; }
 .navigation-menu { display: flex; flex-direction: column; gap: 0.5rem; }

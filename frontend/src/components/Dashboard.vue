@@ -57,7 +57,7 @@ function verDetalle(id) {
   <div class="dashboard-view">
     
     <div class="header-banner">
-      <h1>Dashboard: Mi Corralón</h1>
+      <h1>Dashboard: Corralón {Localizacion}</h1>
       <p>Resumen de la operación del día.</p>
     </div>
     
@@ -69,15 +69,15 @@ function verDetalle(id) {
 
       <div class="stat-card green">
         <h2>{{ stats.ingresosHoy }}</h2>
-        <p>Ingresos de Hoy</p>
+        <p>Ingresados Hoy</p>
       </div>
 
       <div class="stat-card red">
         <h2>{{ stats.liberadosHoy }}</h2>
-        <p>Liberados Hoy (Próximamente)</p>
+        <p>Liberados Hoy</p>
       </div>
     </div> <div class="filter-controls">
-        <label for="filtro">Filtrar Inventario:</label>
+        <label for="filtro">Filtrar:</label>
         <select id="filtro" v-model="filtroSeleccionado" class="filter-select">
             <option value="Recientes">📅 Más Recientes</option>
             <option value="Viejos">⏳ Más Viejos</option>
@@ -88,7 +88,7 @@ function verDetalle(id) {
     </div>
     
     <div class="gallery-header">
-      <h2>Recién Llegados al Corralón</h2>
+      <h2>Vehiculos en el Corralón:</h2>
       <p>Mostrando {{ inventarioFiltrado.length }} de {{ inventario.length }} vehículos</p>
     </div>
 
@@ -129,7 +129,7 @@ function verDetalle(id) {
 }
 
 .header-banner {
-  background: linear-gradient(to right, #34495e, #2c3e50);
+  background: linear-gradient(to right, #2c3e50, #0a0e12);
   color: white;
   padding: 1.5rem 2rem;
   border-radius: 8px;

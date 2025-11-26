@@ -208,14 +208,20 @@ async function actualizarEstatus() {
 </template>
 
 <style scoped>
+
+.detalle-container h1 {
+  color: white; /* Hacemos el título blanco */
+  margin-bottom: 1.5rem;
+}
+
 .detalle-container {
-  background-color: #fff;
+  background: linear-gradient(to right, #2c3e50, #0a0e12);
   padding: 2rem;
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 .btn-regresar {
-  background-color: #7f8c8d;
+  background: linear-gradient(to right, #5ab96a, #01655c);
   color: white;
   border: none;
   padding: 0.6rem 1rem;
@@ -250,14 +256,15 @@ async function actualizarEstatus() {
 .lista-detalles li {
   font-size: 1.1rem;
   padding: 0.5rem 0;
-  border-bottom: 1px solid #f0f0f0;
+  color: #bdc3c7;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 .lista-detalles strong {
-  color: #34495e;
+  color: #f39c12;
 }
 
 .btn-editar {
-  background-color: #01655c; 
+  background: linear-gradient(to right, #01655c, #5ab96a );
   color: white;
   border: none;
   padding: 0.6rem 1rem;
@@ -312,10 +319,10 @@ async function actualizarEstatus() {
   padding-top: 1rem;
 }
 .estatus-container h3 {
-  color: #fff; /* O ajusta al color de tu tema */
+  color: #ffffffff; /* O ajusta al color de tu tema */
 }
 .estatus-container p {
-  color: #000000ff;
+  color: #ffffffff;
   font-size: 0.9rem;
 }
 .estatus-select {
@@ -335,7 +342,7 @@ async function actualizarEstatus() {
 
 /* --- Estilos para el Botón de Cita --- */
 .btn-cita {
-  background-color: #3498db; /* Azul brillante */
+  background: linear-gradient(to right, #3498db, #1953c8ff); /* Azul brillante */
   color: white;
   border: none;
   padding: 0.6rem 1rem;
@@ -361,7 +368,7 @@ async function actualizarEstatus() {
 }
 
 .modal-form-card {
-  background-color: white;
+  background: linear-gradient(to right, #ffffffff, #ccd8e3ff);
   padding: 2rem;
   border-radius: 8px;
   width: 100%;
@@ -401,7 +408,7 @@ async function actualizarEstatus() {
   border-radius: 4px; cursor: pointer; font-weight: bold;
 }
 .btn-confirmar {
-  background-color: #27ae60;
+  background: linear-gradient(to right, #27ae60, #217f48ff);
   color: white; border: none; padding: 0.8rem 1.2rem;
   border-radius: 4px; cursor: pointer; font-weight: bold;
 }

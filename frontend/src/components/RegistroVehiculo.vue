@@ -226,7 +226,7 @@ function resetForm() {
   border: 2px solid #ffffffff; /* Borde de advertencia amarillo */
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  background-color: #222627; /* Fondo amarillo pálido */
+  background: linear-gradient(to right, #2c3e50, #0a0e12); /* Fondo amarillo pálido */
 }
 
 h2 {
@@ -269,7 +269,7 @@ button {
   padding: 0.8rem;
   border: none;
   border-radius: 4px;
-  background-color: #01655c; /* Botón de "peligro" rojo */
+  background: linear-gradient(to right, #5ab96a, #01655c); /* Botón de "peligro" rojo */
   color: white;
   font-size: 1rem;
   font-weight: bold;
@@ -293,7 +293,7 @@ button:hover {
   padding: 0.8rem;
   border: none;
   border-radius: 4px;
-  background-color: #01655c;
+  background: linear-gradient(to right, #5ab96a, #01655c);
   color: white;
   font-size: 1rem;
   font-weight: bold;

@@ -172,7 +172,7 @@ async function limpiarRegistrosViejos() {
 
 /* --- Estilos para el nuevo banner --- */
 .header-banner {
-  background: linear-gradient(to right, #34495e, #2c3e50);
+  background: linear-gradient(to right, #2c3e50, #0a0e12);
   color: white;
   padding: 1.5rem 2rem;
   border-radius: 8px;
@@ -212,7 +212,7 @@ async function limpiarRegistrosViejos() {
 .inventario-table {
   width: 100%;
   border-collapse: collapse;
-  background-color: #fff;
+  background: linear-gradient(to right, #2c3e50, #0a0e12);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
   border-radius: 8px;
   overflow: hidden;
@@ -225,11 +225,16 @@ th, td {
 
   font-size: 1.2rem;  
   font-weight: 600;   
-  color: #2c3e50;
+  color: #ffff;
 }
-thead { background-color: #f8f9fa; }
+thead { background: linear-gradient(to right, #2c3e50, #01655c, #2c3e50) }
 th { font-weight: 600; }
-tbody tr:hover { background-color: #f1f1f1; cursor: pointer; }
+tbody tr {
+  /* Esto le dice al navegador: "Cualquier cambio que sufras, hazlo tardar 0.5 segundos" */
+  transition: all 0.5s ease-in-out;
+  position: relative; /* Necesario para estabilidad */
+}
+tbody tr:hover { background: linear-gradient(to right, #2c3e50, #01655c, #2c3e50); cursor: pointer; }
 
 .vehiculo-imagen {
   /* Antes era 80px y 50px */
@@ -253,13 +258,14 @@ tbody tr:hover { background-color: #f1f1f1; cursor: pointer; }
 }
 
 .btn-maintenance {
-    background-color: #e67e22;
+    background: linear-gradient(to right, #f0620bff, #e1ae14ff);
     color: white; border: none;
     padding: 0.6rem 1rem; border-radius: 6px;
     cursor: pointer; font-weight: bold;
     transition: background-color 0.3s;
 }
 .btn-maintenance:hover { background-color: #d35400; }
+
 
 .btn-trash {
     background-color: transparent;
@@ -293,5 +299,20 @@ tbody tr:hover { background-color: #f1f1f1; cursor: pointer; }
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+tbody tr:has(.btn-trash:hover) {
+  /* El gradiente rojo */
+  background: linear-gradient(to right, #5c1818, #c0392b, #5c1818) !important;
+  
+  /* Una pequeña transformación para que "vibre" o crezca sutilmente */
+  transform: scale(1.01); 
+  box-shadow: 0 0 15px rgba(192, 57, 43, 0.6); /* Resplandor rojo */
+}
+
+/* El texto cambia suavemente a blanco/rojizo */
+tbody tr:has(.btn-trash:hover) td {
+  color: #ffcccc;
+  text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
 }
 </style>

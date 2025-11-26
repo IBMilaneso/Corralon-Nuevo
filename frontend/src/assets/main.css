@@ -1,5 +1,24 @@
+/* src/assets/main.css */
+
 body {
-  background-color: #f1f1f1; /* Fondo gris oscuro */
-  margin: 0; /* Opcional: Buena práctica para quitar márgenes por defecto */
-  font-family: sans-serif; /* Opcional: Unifica la fuente de la app */
+  margin: 0;
+  font-family: sans-serif;
+  
+  /* --- AQUÍ ESTÁ LA MAGIA DEL DEGRADADO --- */
+  
+  /* 1. Definimos el alto mínimo para que cubra toda la pantalla */
+  min-height: 100vh;
+  
+  /* 2. Creamos el degradado (de arriba hacia abajo) */
+  /* Empieza en tu azul oscuro (#2c3e50) y termina en blanco (#ffffff) */
+  background: linear-gradient(to bottom,  #2c3e50,#01655c);
+  
+  /* 3. Fijamos el fondo para un efecto más elegante al hacer scroll */
+  background-attachment: fixed;
+  
+  /* 4. Aseguramos que no se repita */
+  background-repeat: no-repeat;
+  
+  /* Color de texto base (opcional, para que se lea sobre lo oscuro) */
+  color: #333;
 }

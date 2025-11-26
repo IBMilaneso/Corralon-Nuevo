@@ -190,7 +190,7 @@ function eliminarFotoNueva(index) {
 .formulario-edicion {
   margin-top: 2rem;
   padding: 2rem;
-  background-color: #2c3e50; /* Un fondo ligeramente distinto */
+  background: linear-gradient(to right, #2c3e50, #0a0e12);
   border-radius: 8px;
 }
 .formulario-edicion h2 {
@@ -218,7 +218,7 @@ button:hover { background-color: #36a374; }
   flex-wrap: wrap;
   gap: 1rem;
   margin-top: 1rem;
-  background-color: #34495e; /* Fondo para la galería */
+  background: linear-gradient(to right, #2c3e50, #0a0e12);
   padding: 1rem;
   border-radius: 6px;
 }
