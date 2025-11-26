@@ -79,9 +79,7 @@ async function actualizarEstatus() {
 
     // Si eligen "Liberar", hacemos lo que dijiste: lo borramos
     if (nuevoEstatus === 'Liberar') {
-      // Aún no hemos hecho esta parte, ¡pero es el plan!
-      // Por ahora, solo lo marcamos.
-      estatusMensaje.value = '¡Estatus "Liberar" guardado!';
+      estatusMensaje.value = '¡Liberado! Se ocultará del inventario y se eliminará en 7 días.';
     } else {
       estatusMensaje.value = '¡Estatus actualizado!';
     }

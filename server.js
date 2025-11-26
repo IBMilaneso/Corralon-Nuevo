@@ -81,20 +81,17 @@ app.post('/api/registrar-vehiculo', upload.array('fotos', 20), async (req, res) 
 // --- OBTENER TODOS LOS VEHÍCULOS (AHORA CON SQL) ---
 app.get('/api/vehiculos', async (req, res) => {
   try {
-    const sql = "SELECT * FROM vehiculos ORDER BY fecha_ingreso DESC";
-    const [rows] = await pool.query(sql); // [rows] extrae solo el array de resultados
-    
-    // Convertimos el texto JSON de las fotos de nuevo a un array
+    // Excluye los vehículos donde liberado_el NO es nulo
+    const sql = "SELECT * FROM vehiculos WHERE liberado_el IS NULL ORDER BY fecha_ingreso DESC";
+    const [rows] = await pool.query(sql);
+
     const vehiculos = rows.map(v => ({
       ...v,
-      fotos: JSON.parse(v.fotos || '[]') // Parsea las fotos
+      fotos: JSON.parse(v.fotos || '[]')
     }));
 
     res.status(200).json(vehiculos);
-  } catch (error) {
-    console.error('Error al obtener vehículos:', error);
-    res.status(500).json({ message: 'Error en el servidor' });
-  }
+  } catch (error) { /* ...manejo de errores... */ }
 });
 
 // --- OBTENER UN SOLO VEHÍCULO POR ID (AHORA CON SQL) ---
@@ -123,21 +120,20 @@ app.get('/api/vehiculos/:id', async (req, res) => {
 // --- OBTENER ESTADÍSTICAS (AHORA CON SQL) ---
 app.get('/api/stats', async (req, res) => {
   try {
-    // 1. Contar el total de vehículos
-    const [totalRows] = await pool.query("SELECT COUNT(*) as total FROM vehiculos");
-    
-    // 2. Contar los ingresos de hoy (CURDATE() es una función de MySQL)
-    const [hoyRows] = await pool.query("SELECT COUNT(*) as total FROM vehiculos WHERE DATE(fecha_ingreso) = CURDATE()");
+    // Contamos el total SÓLO de los no liberados
+    const [totalRows] = await pool.query("SELECT COUNT(*) as total FROM vehiculos WHERE liberado_el IS NULL");
+
+    // Contamos las liberaciones que se hicieron HOY
+    const [liberadosRows] = await pool.query("SELECT COUNT(*) as total FROM vehiculos WHERE DATE(liberado_el) = CURDATE()");
+
+    const [hoyRows] = await pool.query("SELECT COUNT(*) as total FROM vehiculos WHERE DATE(fecha_ingreso) = CURDATE() AND liberado_el IS NULL");
 
     res.status(200).json({
       totalVehiculos: totalRows[0].total,
       ingresosHoy: hoyRows[0].total,
-      liberadosHoy: 0 // Aún no tenemos esta lógica
+      liberadosHoy: liberadosRows[0].total // <-- El nuevo stat
     });
-  } catch (error) {
-    console.error('Error al obtener estadísticas:', error);
-    res.status(500).json({ message: 'Error en el servidor' });
-  }
+  } catch (error) { /* ...manejo de errores... */ }
 });
 
 // ===========================================
@@ -194,17 +190,73 @@ app.put('/api/vehiculos/:id', upload.array('fotosNuevas', 20), async (req, res) 
 app.patch('/api/vehiculos/:id/estatus', async (req, res) => {
   try {
     const id = req.params.id;
-    const { estatus } = req.body; // Recibimos el nuevo estatus
+    const { estatus } = req.body; 
 
-    const sql = "UPDATE vehiculos SET estatus = ? WHERE id = ?";
+    let sql = "UPDATE vehiculos SET estatus = ?";
+    let params = [estatus];
 
-    await pool.query(sql, [estatus, id]);
+    // Lógica de Soft Delete: Si el estatus es 'Liberar', guardamos la fecha y hora.
+    if (estatus === 'Liberar') {
+      sql += ", liberado_el = NOW()";
+    } else {
+      // Si cambian a otro estatus, limpiamos la fecha de liberación
+      sql += ", liberado_el = NULL";
+    }
+
+    sql += " WHERE id = ?";
+    params.push(id); // Añadimos el ID como último parámetro
+
+    await pool.query(sql, params);
 
     res.status(200).json({ message: '¡Estatus actualizado con éxito!' });
 
+  } catch (error) { /* ...manejo de errores... */ }
+});
+
+
+// ===========================================
+// == RUTA DE MANTENIMIENTO: HARD DELETE ==
+// ===========================================
+// Elimina permanentemente los registros marcados como liberados hace más de 7 días
+app.delete('/api/maintenance/clean-releases', async (req, res) => {
+  try {
+    // SQL para eliminar registros donde la fecha de liberación sea hace más de 7 días
+    const sql = `
+      DELETE FROM vehiculos 
+      WHERE liberado_el IS NOT NULL 
+      AND liberado_el < DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+    `;
+
+    const [result] = await pool.query(sql);
+
+    res.status(200).json({ 
+      message: `Mantenimiento exitoso. Se eliminaron ${result.affectedRows} registros liberados.`,
+      count: result.affectedRows
+    });
   } catch (error) {
-    console.error('Error al actualizar el estatus:', error);
-    res.status(500).json({ message: 'Error en el servidor al actualizar' });
+    console.error('Error en mantenimiento de liberación:', error);
+    res.status(500).json({ message: 'Error en el servidor de mantenimiento' });
+  }
+});
+
+// ===========================================
+// == RUTA: ELIMINAR UN VEHÍCULO (DELETE) ==
+// ===========================================
+app.delete('/api/vehiculos/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const sql = "DELETE FROM vehiculos WHERE id = ?";
+    
+    const [result] = await pool.query(sql, [id]);
+    
+    if (result.affectedRows === 0) {
+        return res.status(404).json({ message: 'Vehículo no encontrado' });
+    }
+
+    res.status(200).json({ message: 'Vehículo eliminado correctamente.' });
+  } catch (error) {
+    console.error('Error al eliminar vehículo:', error);
+    res.status(500).json({ message: 'Error en el servidor' });
   }
 });
 

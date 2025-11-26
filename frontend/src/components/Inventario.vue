@@ -1,32 +1,32 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'; // <-- 1. Importar computed
+import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
-const inventario = ref([]); // Lista completa de la BD
+const inventario = ref([]);
 const router = useRouter();
-const terminoBusqueda = ref(''); // <-- 2. Nuevo ref para la búsqueda
+const terminoBusqueda = ref('');
+const mensajeSistema = ref(''); // Para mostrar mensajes de éxito/error
 
-// Pedir todos los vehículos (esto no cambia)
-onMounted(async () => {
+// Cargar datos
+async function cargarInventario() {
   try {
     const response = await axios.get('http://localhost:3000/api/vehiculos');
-    inventario.value = response.data; // La BD ya los manda ordenados
+    inventario.value = response.data;
   } catch (error) {
     console.error('Error al obtener el inventario:', error);
   }
+}
+
+onMounted(() => {
+  cargarInventario();
 });
 
-// --- 3. NUEVA PROPIEDAD COMPUTADA PARA FILTRAR ---
+// --- LÓGICA DE FILTRADO ---
 const inventarioFiltrado = computed(() => {
-  // Si la barra está vacía, muestra todo
-  if (!terminoBusqueda.value) {
-    return inventario.value;
-  }
-
+  if (!terminoBusqueda.value) return inventario.value;
+  
   const busqueda = terminoBusqueda.value.toLowerCase().trim();
-
-  // Filtra la lista basándose en el término de búsqueda
   return inventario.value.filter(vehiculo => {
     const placa = (vehiculo.placa || '').toLowerCase();
     const marca = (vehiculo.marca || '').toLowerCase();
@@ -35,25 +35,57 @@ const inventarioFiltrado = computed(() => {
     const anio = (vehiculo.anio || '').toString();
 
     return (
-      placa.includes(busqueda) ||
-      marca.includes(busqueda) ||
-      modelo.includes(busqueda) ||
-      color.includes(busqueda) ||
-      anio.includes(busqueda)
+      placa.includes(busqueda) || marca.includes(busqueda) ||
+      modelo.includes(busqueda) || color.includes(busqueda) || anio.includes(busqueda)
     );
   });
 });
-// --- Fin de la propiedad computada ---
 
-// Función para formatear la fecha (no cambia)
 function formatFecha(timestamp) {
   if (!timestamp) return 'No registrada';
   return new Date(timestamp).toLocaleDateString('es-MX');
 }
 
-// Función para ver detalle (no cambia)
 function verDetalle(id){
   router.push({ name: 'vehiculoDetalle', params: { id }, query: { modo: 'editar' } });
+}
+
+// --- NUEVAS FUNCIONES DE ELIMINACIÓN ---
+
+// 1. Eliminar un solo vehículo
+async function eliminarVehiculo(id) {
+  // Confirmación de seguridad
+  if (!confirm('⚠️ ¿Estás seguro de eliminar este vehículo permanentemente? Esta acción no se puede deshacer.')) {
+    return;
+  }
+
+  try {
+    await axios.delete(`http://localhost:3000/api/vehiculos/${id}`);
+    mensajeSistema.value = 'Vehículo eliminado correctamente.';
+    cargarInventario(); // Recargamos la lista
+    
+    // Borramos el mensaje a los 3 segundos
+    setTimeout(() => mensajeSistema.value = '', 3000);
+  } catch (error) {
+    alert('Error al eliminar el vehículo');
+    console.error(error);
+  }
+}
+
+// 2. Mantenimiento masivo (Liberados > 7 días)
+async function limpiarRegistrosViejos() {
+  if (!confirm('🧹 ¿Eliminar PERMANENTEMENTE todos los registros que fueron liberados hace más de 7 días?')) {
+    return;
+  }
+  
+  try {
+    const response = await axios.delete('http://localhost:3000/api/maintenance/clean-releases');
+    mensajeSistema.value = response.data.message;
+    cargarInventario();
+    setTimeout(() => mensajeSistema.value = '', 5000);
+  } catch (error) {
+    alert('Error en mantenimiento');
+  }
 }
 </script>
 
@@ -61,18 +93,23 @@ function verDetalle(id){
   <div class="inventario-view">
     <div class="header-banner">
       <div class="banner-info">
-        <h1>🚗 Inventario Actual del Corralón</h1>
-        <p>Aquí puedes ver todos los vehículos actualmente bajo resguardo.</p>
+        <h1>🚗 Inventario Actual</h1>
+        <p>Administración y control de vehículos.</p>
       </div>
       
       <div class="search-bar-container">
         <input 
-          type="text" 
-          v-model="terminoBusqueda" 
-          placeholder="Buscar por placa, marca, modelo..." 
-          class="search-input"
+          type="text" v-model="terminoBusqueda" 
+          placeholder="Buscar por placa, marca..." class="search-input"
         >
       </div>
+    </div>
+
+    <div class="admin-toolbar">
+        <button @click="limpiarRegistrosViejos" class="btn-maintenance">
+            🧹 Limpiar Liberados Antiguos
+        </button>
+        <span v-if="mensajeSistema" class="mensaje-exito">{{ mensajeSistema }}</span>
     </div>
 
     <table class="inventario-table">
@@ -83,17 +120,19 @@ function verDetalle(id){
           <th>Marca</th>
           <th>Modelo</th>
           <th>Año</th>
-          <th>Fecha de Ingreso</th>
-          
-        </tr>
+          <th>Fecha</th>
+          <th>Acciones</th> </tr>
       </thead>
       <tbody>
-      <tr v-for="vehiculo in inventarioFiltrado" :key="vehiculo.id" @click="verDetalle(vehiculo.id)">
+        <tr 
+          v-for="vehiculo in inventarioFiltrado" 
+          :key="vehiculo.id" 
+          @click="verDetalle(vehiculo.id)"
+        >
           <td>
             <img 
               v-if="vehiculo.fotos && vehiculo.fotos.length > 0" 
               :src="`http://localhost:3000/${vehiculo.fotos[0]}`" 
-              alt="Foto del vehículo" 
               class="vehiculo-imagen"
             >
           </td>
@@ -102,115 +141,105 @@ function verDetalle(id){
           <td>{{ vehiculo.modelo }}</td>
           <td>{{ vehiculo.anio }}</td>
           <td>{{ formatFecha(vehiculo.fecha_ingreso) }}</td>
+          
+          <td class="acciones-td">
+            <button 
+                class="btn-trash" 
+                @click.stop="eliminarVehiculo(vehiculo.id)"
+                title="Eliminar permanentemente"
+            >
+                🗑️
+            </button>
+          </td>
         </tr>
       </tbody>
     </table>
 
     <p v-if="inventarioFiltrado.length === 0" class="empty-message">
-      <span v-if="terminoBusqueda">No se encontraron vehículos que coincidan con "{{ terminoBusqueda }}".</span>
-      <span v-else>No hay vehículos registrados en el inventario.</span>
+      <span v-if="terminoBusqueda">Sin resultados para "{{ terminoBusqueda }}".</span>
+      <span v-else>No hay vehículos registrados.</span>
     </p>
   </div>
 </template>
 
 <style scoped>
-.inventario-view {
-  animation: fadeIn 0.5s ease-in-out;
-}
-
-/* --- Estilos para el nuevo banner --- */
+/* ... Tus estilos anteriores del banner y buscador se mantienen igual ... */
 .header-banner {
   background: linear-gradient(to right, #34495e, #2c3e50);
   color: white;
   padding: 1.5rem 2rem;
   border-radius: 8px;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+/* ... (copia tus estilos de .search-bar-container y .search-input aquí si se perdieron) ... */
+.search-bar-container { width: 100%; max-width: 400px; }
+.search-input { width: 100%; padding: 0.75rem; border-radius: 6px; border: none; }
 
-.header-banner h1 {
-  margin: 0;
-  font-size: 1.8rem;
-}
-
-.header-banner p {
-  margin: 0.5rem 0 0;
-  opacity: 0.9;
-}
-
-/* --- Estilos para la tabla y la imagen --- */
+/* ESTILOS DE LA TABLA */
 .inventario-table {
   width: 100%;
   border-collapse: collapse;
   background-color: #fff;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
   border-radius: 8px;
-  overflow: hidden; /* Para que los bordes redondeados se apliquen a la tabla */
+  overflow: hidden;
 }
-
 th, td {
   padding: 1rem;
   text-align: left;
   border-bottom: 1px solid #ddd;
-  vertical-align: middle; /* Centra el contenido verticalmente */
+  vertical-align: middle;
 }
-
-thead {
-  background-color: #f8f9fa;
-}
-
-th {
-  font-weight: 600;
-}
-
-tbody tr:hover {
-  background-color: #f1f1f1;
-  cursor: pointer;
-}
+thead { background-color: #f8f9fa; }
+th { font-weight: 600; }
+tbody tr:hover { background-color: #f1f1f1; cursor: pointer; }
 
 .vehiculo-imagen {
-  width: 100px;
-  height: 60px;
-  object-fit: cover; /* Asegura que la imagen no se deforme */
-  border-radius: 6px;
+  width: 80px; height: 50px; object-fit: cover; border-radius: 4px;
 }
 
-.empty-message {
-  text-align: center;
-  margin-top: 2rem;
-  font-size: 1.1rem;
-  color: #777;
+/* --- NUEVOS ESTILOS --- */
+.admin-toolbar {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+.btn-maintenance {
+    background-color: #e67e22;
+    color: white; border: none;
+    padding: 0.6rem 1rem; border-radius: 6px;
+    cursor: pointer; font-weight: bold;
+    transition: background-color 0.3s;
+}
+.btn-maintenance:hover { background-color: #d35400; }
+
+.btn-trash {
+    background-color: transparent;
+    border: 1px solid #e74c3c;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 5px 10px;
+    transition: all 0.2s;
+}
+.btn-trash:hover {
+    background-color: #e74c3c;
+    color: white; /* El emoji no cambia de color, pero el fondo sí */
 }
 
-/* --- Estilos para el buscador chiquito --- */
-.search-bar-container {
-  width: 100%;
-  max-width: 400px; /* Esto lo hace "chiquito" y no ocupa todo el ancho */
+.acciones-td {
+    text-align: center;
 }
 
-.search-input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  box-sizing: border-box;
-  border: 1px solid rgba(255, 255, 255, 0.3); /* Borde claro */
-  background-color: rgba(255, 255, 255, 0.1); /* Fondo oscuro transparente */
-  color: white; /* Texto blanco */
+.mensaje-exito {
+    color: #27ae60;
+    font-weight: bold;
+    animation: fadeIn 0.5s;
 }
-
-.search-input::placeholder {
-  color: rgba(255, 255, 255, 0.5);
-}
-
 </style>
