@@ -77,7 +77,21 @@ function cerrarSesion() {
   /* Opcional: Una sombra sutil a la derecha para separarlo del contenido */
   box-shadow: 2px 0 10px rgba(0,0,0,0.3);
 }
-.sidebar h3 { text-align: center; margin-bottom: 2rem; font-size: 1.5rem; }
+.sidebar h3 { 
+  text-align: center; 
+  margin-bottom: 2rem; 
+  font-size: 1.5rem; 
+  background-image: linear-gradient(to right, #42b983, #3498db);
+  -webkit-background-clip: text; 
+  background-clip: text; 
+  
+  /* 3. CLAVE: Haz el texto transparente para que el fondo se vea a través */
+  -webkit-text-fill-color: transparent;
+  color: transparent; /* Fallback */
+  
+  /* Añade una pequeña sombra para que el texto brillante resalte en el fondo oscuro */
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.1));
+  }
 .navigation-menu { display: flex; flex-direction: column; gap: 0.5rem; }
 .nav-link {
   display: flex; align-items: center; padding: 0.8rem 1rem;
