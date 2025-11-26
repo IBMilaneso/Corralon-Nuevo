@@ -20,11 +20,9 @@ const router = createRouter({
       name: 'registrar',
       component: RegistroVehiculo
     },
-    // Ruta de ejemplo para el futuro
     {
       path: '/inventario',
       name: 'inventario',
-      // Esto es un componente de ejemplo que aún no hemos creado
       component: Inventario 
     },
     {
@@ -33,7 +31,7 @@ const router = createRouter({
       component: Buscador
     },
     {
-      path: '/vehiculo/:id', // El :id es un parámetro dinámico
+      path: '/vehiculo/:id', 
       name: 'vehiculoDetalle',
       component: VehiculoDetalle
     },

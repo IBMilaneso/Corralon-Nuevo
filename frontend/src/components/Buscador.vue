@@ -3,25 +3,20 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
-// --- ESTADO ---
-const todosLosVehiculos = ref([]); // Lista completa
-const terminoBusqueda = ref('');    // Lo que escribe el usuario
+const todosLosVehiculos = ref([]); 
+const terminoBusqueda = ref(''); 
 const router = useRouter();
 
-// --- LÓGICA DE DATOS ---
 onMounted(async () => {
   try {
     const response = await axios.get('http://localhost:3000/api/vehiculos');
-    // La BD ya los manda ordenados, no necesitamos .reverse()
-    todosLosVehiculos.value = response.data; 
+    todosLosVehiculos.value = response.data;
   } catch (error) {
     console.error('Error al obtener el inventario:', error);
   }
 });
 
-// --- FILTRO (Propiedad Computada) ---
 const resultadosFiltrados = computed(() => {
-  // Si no hay nada escrito, no mostramos nada
   if (terminoBusqueda.value.trim() === '') {
     return [];
   }
@@ -115,19 +110,17 @@ function verDetalle(id) {
   animation: fadeIn 0.5s ease-in-out;
 }
 
-/* --- TARJETA BLANCA (CLEAN STYLE) --- */
 .buscador-container {
   max-width: 900px;
   margin: 0 auto 2rem auto;
   text-align: center;
   padding: 2rem;
   
-  /* Mantenemos el fondo blanco y texto oscuro aquí */
-  background-color: #fff; 
-  color: #333; 
+  background-color: #fff;
+  color: #333;
   
   border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Sombra más suave y moderna */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 .buscador-container h1 {
@@ -154,11 +147,9 @@ function verDetalle(id) {
   border-color: #3498db;
 }
 
-/* --- TABLA ESTILO MODERNO (OSCURO) --- */
 .inventario-table {
   width: 100%;
   border-collapse: collapse;
-  /* Fondo oscuro con gradiente sutil, igual que Inventario */
   background: linear-gradient(to right, #2c3e50, #0a0e12);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
   border-radius: 8px;
@@ -169,12 +160,11 @@ function verDetalle(id) {
 th, td {
   padding: 1rem;
   text-align: left;
-  border-bottom: 1px solid #444; /* Borde más sutil para fondo oscuro */
+  border-bottom: 1px solid #444;
   vertical-align: middle;
   
-  /* Tipografía grande y blanca */
-  font-size: 1.2rem;  
-  font-weight: 600;   
+  font-size: 1.2rem;
+  font-weight: 600;
   color: #ffff;
 }
 
@@ -190,13 +180,12 @@ tbody tr:hover {
   cursor: pointer; 
 }
 
-/* --- IMAGEN GRANDE --- */
 .vehiculo-imagen {
-  width: 160px;  /* Grande */
-  height: 100px; /* Grande */
+  width: 160px;
+  height: 100px;
   object-fit: cover;
   border-radius: 6px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   display: block;
 }
 
@@ -204,7 +193,7 @@ tbody tr:hover {
   text-align: center;
   margin-top: 3rem;
   font-size: 1.2rem;
-  color: #7f8c8d; 
+  color: #7f8c8d;
 }
 
 @keyframes fadeIn {

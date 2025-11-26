@@ -16,10 +16,7 @@ async function iniciarSesion() {
     });
 
     if (response.data.success) {
-      // GUARDAMOS LA "SESIÓN" EN EL NAVEGADOR
       localStorage.setItem('esAdmin', 'true');
-      
-      // Forzamos una recarga para que el Sidebar se actualice
       window.location.href = '/'; 
     }
   } catch (error) {
@@ -61,7 +58,7 @@ async function iniciarSesion() {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 80vh; /* Centrado vertical */
+  height: 80vh;
 }
 .login-card {
   background-color: white;

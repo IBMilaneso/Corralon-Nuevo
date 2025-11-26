@@ -6,9 +6,8 @@ import axios from 'axios';
 const inventario = ref([]);
 const router = useRouter();
 const terminoBusqueda = ref('');
-const mensajeSistema = ref(''); // Para mostrar mensajes de éxito/error
+const mensajeSistema = ref('');
 
-// Cargar datos
 async function cargarInventario() {
   try {
     const response = await axios.get('http://localhost:3000/api/vehiculos');
@@ -22,7 +21,6 @@ onMounted(() => {
   cargarInventario();
 });
 
-// --- LÓGICA DE FILTRADO ---
 const inventarioFiltrado = computed(() => {
   if (!terminoBusqueda.value) return inventario.value;
   
@@ -50,11 +48,7 @@ function verDetalle(id){
   router.push({ name: 'vehiculoDetalle', params: { id }, query: { modo: 'editar' } });
 }
 
-// --- NUEVAS FUNCIONES DE ELIMINACIÓN ---
-
-// 1. Eliminar un solo vehículo
 async function eliminarVehiculo(id) {
-  // Confirmación de seguridad
   if (!confirm('⚠️ ¿Estás seguro de eliminar este vehículo permanentemente? Esta acción no se puede deshacer.')) {
     return;
   }
@@ -62,9 +56,7 @@ async function eliminarVehiculo(id) {
   try {
     await axios.delete(`http://localhost:3000/api/vehiculos/${id}`);
     mensajeSistema.value = 'Vehículo eliminado correctamente.';
-    cargarInventario(); // Recargamos la lista
-    
-    // Borramos el mensaje a los 3 segundos
+    cargarInventario();
     setTimeout(() => mensajeSistema.value = '', 3000);
   } catch (error) {
     alert('Error al eliminar el vehículo');
@@ -72,7 +64,6 @@ async function eliminarVehiculo(id) {
   }
 }
 
-// 2. Mantenimiento masivo (Liberados > 7 días)
 async function limpiarRegistrosViejos() {
   if (!confirm('🧹 ¿Eliminar PERMANENTEMENTE todos los registros que fueron liberados hace más de 7 días?')) {
     return;
@@ -170,7 +161,6 @@ async function limpiarRegistrosViejos() {
   animation: fadeIn 0.5s ease-in-out;
 }
 
-/* --- Estilos para el nuevo banner --- */
 .header-banner {
   background: linear-gradient(to right, #2c3e50, #0a0e12);
   color: white;
@@ -186,7 +176,6 @@ async function limpiarRegistrosViejos() {
 .header-banner h1 { margin: 0; font-size: 1.8rem; }
 .header-banner p { margin: 0.5rem 0 0; opacity: 0.9; }
 
-/* --- Estilos Recuperados del Buscador --- */
 .search-bar-container {
   width: 100%;
   max-width: 400px;
@@ -198,7 +187,6 @@ async function limpiarRegistrosViejos() {
   font-size: 1rem;
   border-radius: 6px;
   box-sizing: border-box;
-  /* Estilo oscuro transparente */
   border: 1px solid rgba(255, 255, 255, 0.3);
   background-color: rgba(255, 255, 255, 0.1);
   color: white;
@@ -208,7 +196,6 @@ async function limpiarRegistrosViejos() {
   color: rgba(255, 255, 255, 0.5);
 }
 
-/* ESTILOS DE LA TABLA */
 .inventario-table {
   width: 100%;
   border-collapse: collapse;
@@ -223,33 +210,27 @@ th, td {
   border-bottom: 1px solid #ddd;
   vertical-align: middle;
 
-  font-size: 1.2rem;  
-  font-weight: 600;   
+  font-size: 1.2rem;
+  font-weight: 600;
   color: #ffff;
 }
 thead { background: linear-gradient(to right, #2c3e50, #01655c, #2c3e50) }
 th { font-weight: 600; }
 tbody tr {
-  /* Esto le dice al navegador: "Cualquier cambio que sufras, hazlo tardar 0.5 segundos" */
   transition: all 0.5s ease-in-out;
-  position: relative; /* Necesario para estabilidad */
+  position: relative;
 }
 tbody tr:hover { background: linear-gradient(to right, #2c3e50, #01655c, #2c3e50); cursor: pointer; }
 
 .vehiculo-imagen {
-  /* Antes era 80px y 50px */
-  width: 160px;  /* Mucho más ancha */
-  height: 100px; /* Más alta para que se distinga bien */
-  
-  object-fit: cover; /* Asegura que la foto no se deforme */
-  border-radius: 6px; /* Bordes un poco más redondeados */
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Una pequeña sombra para que resalte */
-  display: block; /* Ayuda a quitar espacios extraños */
+  width: 160px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  display: block;
 }
 
-
-
-/* --- NUEVOS ESTILOS DE ADMINISTRACIÓN --- */
 .admin-toolbar {
     margin-bottom: 1rem;
     display: flex;
@@ -266,7 +247,6 @@ tbody tr:hover { background: linear-gradient(to right, #2c3e50, #01655c, #2c3e50
 }
 .btn-maintenance:hover { background-color: #d35400; }
 
-
 .btn-trash {
     background-color: transparent;
     border: 1px solid #e74c3c;
@@ -278,7 +258,7 @@ tbody tr:hover { background: linear-gradient(to right, #2c3e50, #01655c, #2c3e50
 }
 .btn-trash:hover {
     background-color: #e74c3c;
-    color: white; 
+    color: white;
 }
 
 .acciones-td { text-align: center; }
@@ -302,15 +282,11 @@ tbody tr:hover { background: linear-gradient(to right, #2c3e50, #01655c, #2c3e50
 }
 
 tbody tr:has(.btn-trash:hover) {
-  /* El gradiente rojo */
   background: linear-gradient(to right, #5c1818, #c0392b, #5c1818) !important;
-  
-  /* Una pequeña transformación para que "vibre" o crezca sutilmente */
-  transform: scale(1.01); 
-  box-shadow: 0 0 15px rgba(192, 57, 43, 0.6); /* Resplandor rojo */
+  transform: scale(1.01);
+  box-shadow: 0 0 15px rgba(192, 57, 43, 0.6);
 }
 
-/* El texto cambia suavemente a blanco/rojizo */
 tbody tr:has(.btn-trash:hover) td {
   color: #ffcccc;
   text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);

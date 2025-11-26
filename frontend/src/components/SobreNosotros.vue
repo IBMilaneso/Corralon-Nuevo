@@ -13,11 +13,11 @@
       <div class="content">
         <h2>Sobre Nosotros</h2>
         <p>
-          Bienvenido a <strong>Corralink</strong>. No sabemos lo que hacemos, este es nuestro proyecto para ingenieria en software y esta completo y
+          Bienvenido a <strong>Corralink</strong>. No sabemos lo que hacemos, este es nuestro proyecto para ingenieria en software y esta completo y 
           funcional.
         </p>
         <p>
-          Nuestro aplicacion permite un control exacto desde el ingreso hasta la liberación de un vehiculo, no nos importa si le pasa algo a su vehiculo
+          Nuestro aplicacion permite un control exacto desde el ingreso hasta la liberación de un vehiculo, no nos importa si le pasa algo a su vehiculo 
           queremos que nos paguen pero tambien brindamos información de cada unidad tanto a las autoridades 
           como a los propietarios, y si los propietarios no vienen por el lo vendemos.
         </p>
@@ -33,13 +33,13 @@
   justify-content: center;
   align-items: center;
   padding: 2rem;
-  height: 100%; /* Para centrar verticalmente si hay espacio */
+  height: 100%;
 }
 
 .about-card {
   background-color: white;
   border-radius: 12px;
-  overflow: hidden; /* Para que la imagen respete los bordes redondeados */
+  overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   max-width: 800px;
   width: 100%;
@@ -49,15 +49,14 @@
 .image-container {
   position: relative;
   width: 100%;
-  height: 500px; /* Altura fija necesaria */
-  background-color: #000; /* Fondo negro para los huecos */
-  display: flex;
-  justify-content: center;
+  height: auto;
+  background-color: #000;
+  display: block;
 }
 
 .image-container img {
-width: 100%;
-  height: 100%;
+  width: 100%;
+  height: auto;
   object-fit: contain;
 }
 

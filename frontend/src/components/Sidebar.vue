@@ -5,14 +5,13 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 const esAdmin = ref(false);
 
-// Al cargar el sidebar, revisamos si existe la "cookie" (localStorage)
 onMounted(() => {
   esAdmin.value = localStorage.getItem('esAdmin') === 'true';
 });
 
 function cerrarSesion() {
-  localStorage.removeItem('esAdmin'); // Borramos la "cookie"
-  window.location.href = '/'; // Recargamos para limpiar todo
+  localStorage.removeItem('esAdmin');
+  window.location.href = '/';
 }
 </script>
 
@@ -62,36 +61,26 @@ function cerrarSesion() {
 <style scoped>
 .sidebar {
   width: 250px;
-  
-  /* --- AQUÍ ESTÁ EL CAMBIO --- */
-  /* Degradado de arriba (to bottom). Cambia los colores a tu gusto */
   background: linear-gradient(to bottom, #2c3e50, #0a0e12);
-  
   color: white;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  height: 100vh; /* Ocupa toda la altura */
+  height: 100vh;
   box-sizing: border-box;
-  
-  /* Opcional: Una sombra sutil a la derecha para separarlo del contenido */
   box-shadow: 2px 0 10px rgba(0,0,0,0.3);
 }
-.sidebar h3 { 
-  text-align: center; 
-  margin-bottom: 2rem; 
-  font-size: 1.5rem; 
+.sidebar h3 {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 1.5rem;
   background-image: linear-gradient(to right, #42b983, #3498db);
-  -webkit-background-clip: text; 
-  background-clip: text; 
-  
-  /* 3. CLAVE: Haz el texto transparente para que el fondo se vea a través */
+  -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
-  color: transparent; /* Fallback */
-  
-  /* Añade una pequeña sombra para que el texto brillante resalte en el fondo oscuro */
+  color: transparent;
   filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.1));
-  }
+}
 .navigation-menu { display: flex; flex-direction: column; gap: 0.5rem; }
 .nav-link {
   display: flex; align-items: center; padding: 0.8rem 1rem;

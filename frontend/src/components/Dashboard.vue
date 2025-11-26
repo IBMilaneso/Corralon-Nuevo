@@ -10,10 +10,9 @@ const stats = ref({
   liberadosHoy: 0
 });
 
-const inventario = ref([]); // Lista completa sin ordenar
-const filtroSeleccionado = ref('Recientes'); 
+const inventario = ref([]);
+const filtroSeleccionado = ref('Recientes');
 
-// onMounted: Pide todos los datos
 onMounted(async () => {
   try {
     const [statsRes, inventarioRes] = await Promise.all([
@@ -22,28 +21,25 @@ onMounted(async () => {
     ]);
 
     stats.value = statsRes.data;
-    inventario.value = inventarioRes.data; 
+    inventario.value = inventarioRes.data;
 
   } catch (error) {
     console.error('Error al cargar los datos del dashboard:', error);
   }
 });
 
-// --- PROPIEDAD COMPUTADA: FILTRA Y ORDENA ---
 const inventarioFiltrado = computed(() => {
-    let resultado = [...inventario.value]; 
+    let resultado = [...inventario.value];
 
-    // 1. FILTRO POR ESTATUS 
     if (filtroSeleccionado.value === 'Venta') {
         resultado = resultado.filter(v => v.estatus === 'Para vender');
     } else if (filtroSeleccionado.value === 'Sin especificar') {
         resultado = resultado.filter(v => v.estatus === 'Sin especificar');
     }
 
-    // 2. ORDEN CRONOLÓGICO 
     if (filtroSeleccionado.value === 'Viejos') {
         resultado.reverse();
-    } 
+    }
     
     return resultado;
 });
@@ -76,7 +72,9 @@ function verDetalle(id) {
         <h2>{{ stats.liberadosHoy }}</h2>
         <p>Liberados Hoy</p>
       </div>
-    </div> <div class="filter-controls">
+    </div>
+
+    <div class="filter-controls">
         <label for="filtro">Filtrar:</label>
         <select id="filtro" v-model="filtroSeleccionado" class="filter-select">
             <option value="Recientes">📅 Más Recientes</option>
@@ -150,7 +148,6 @@ function verDetalle(id) {
 .stats-container {
   display: flex;
   gap: 1.5rem;
-  /* Quitamos el margin-top exagerado si lo hubiera */
 }
 
 .stat-card {
@@ -255,7 +252,7 @@ function verDetalle(id) {
 }
 
 .filter-controls {
-  margin-top: 2rem; /* Espacio arriba del filtro */
+  margin-top: 2rem;
   padding-bottom: 1rem;
   display: flex;
   align-items: center;

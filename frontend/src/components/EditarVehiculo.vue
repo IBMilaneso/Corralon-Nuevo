@@ -2,7 +2,6 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 
-// Este componente recibe el ID como "prop"
 const props = defineProps({
   idVehiculo: {
     type: [String, Number],
@@ -10,8 +9,8 @@ const props = defineProps({
   }
 });
 
-const vehiculo = ref(null); // Guardará los datos de texto y fotos EXISTENTES
-const fotosNuevas = ref([]); // Guardará las fotos NUEVAS que seleccione el usuario
+const vehiculo = ref(null);
+const fotosNuevas = ref([]);
 const mensaje = ref('');
 const anioActual = new Date().getFullYear();
 const opcionesTitulo = [
@@ -19,7 +18,6 @@ const opcionesTitulo = [
   'Solo Tarjeta de Circulación', 'Sin Documentos', 'Otro'
 ];
 
-// 1. Cargar los datos del vehículo al iniciar
 onMounted(async () => {
   try {
     const response = await axios.get(`http://localhost:3000/api/vehiculos/${props.idVehiculo}`);
@@ -29,15 +27,12 @@ onMounted(async () => {
   }
 });
 
-// 2. Función para GUARDAR CAMBIOS (Ahora usa FormData)
 async function guardarCambios() {
   try {
     mensaje.value = 'Guardando...';
 
-    // Usamos FormData para poder enviar texto y archivos juntos
     const formData = new FormData();
 
-    // Agregamos todos los campos de texto
     formData.append('placa', vehiculo.value.placa);
     formData.append('marca', vehiculo.value.marca);
     formData.append('modelo', vehiculo.value.modelo);
@@ -46,15 +41,12 @@ async function guardarCambios() {
     formData.append('titulo', vehiculo.value.titulo);
     formData.append('motivo', vehiculo.value.motivo);
 
-    // Agregamos la lista de fotos existentes que CONSERVAMOS
     formData.append('fotosActualesJson', JSON.stringify(vehiculo.value.fotos));
 
-    // Agregamos los archivos de las fotos NUEVAS
     for (const fotoObj of fotosNuevas.value) {
       formData.append('fotosNuevas', fotoObj.file);
     }
 
-    // Enviamos todo usando PUT
     const response = await axios.put(`http://localhost:3000/api/vehiculos/${props.idVehiculo}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
@@ -62,8 +54,7 @@ async function guardarCambios() {
     });
 
     mensaje.value = response.data.message;
-    // Opcional: recargar los datos para ver cambios
-    onMounted(); 
+    onMounted();
     fotosNuevas.value = [];
 
   } catch (error) {
@@ -72,14 +63,10 @@ async function guardarCambios() {
   }
 }
 
-// --- FUNCIONES DE MANEJO DE FOTOS ---
-
-// 3. Eliminar una foto que YA ESTABA en la BD
 function eliminarFotoExistente(index) {
   vehiculo.value.fotos.splice(index, 1);
 }
 
-// 4. Agregar fotos NUEVAS (similar a RegistroVehiculo)
 function handleFileUpload(event) {
   const archivosNuevos = event.target.files;
   if (!archivosNuevos.length) return;
@@ -98,10 +85,9 @@ function handleFileUpload(event) {
   }));
 
   fotosNuevas.value.push(...nuevosObjetosFoto);
-  event.target.value = ''; // Limpia el input
+  event.target.value = '';
 }
 
-// 5. Eliminar una foto NUEVA (de la vista previa)
 function eliminarFotoNueva(index) {
   fotosNuevas.value.splice(index, 1);
 }
@@ -186,7 +172,6 @@ function eliminarFotoNueva(index) {
 </template>
 
 <style scoped>
-/* Usamos los mismos estilos del formulario de registro */
 .formulario-edicion {
   margin-top: 2rem;
   padding: 2rem;
@@ -250,7 +235,6 @@ button:hover { background-color: #36a374; }
   background-color: #dc3545;
 }
 
-/* --- Estilos para el botón de subir archivo (modo edición) --- */
 .input-file-hidden {
   display: none;
 }

@@ -1,16 +1,16 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router'; // Importamos los hooks del router
+import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import EditarVehiculo from './EditarVehiculo.vue';
-import { reactive } from 'vue'; // <-- ASEGÚRATE DE IMPORTAR 'reactive'
+import { reactive } from 'vue';
 
-const route = useRoute(); // Contiene información de la URL actual
+const route = useRoute();
 const puedeEditar = computed(() => route.query.modo === 'editar');
-const router = useRouter(); // Nos permite navegar
+const router = useRouter();
 
-const vehiculo = ref(null); // Aquí guardaremos los datos del vehículo
-const vehiculoId = route.params.id; // Obtenemos el ID de la URL
+const vehiculo = ref(null);
+const vehiculoId = route.params.id;
 const mostrarEditor = ref(false);
 
 const isModalVisible = ref(false);
@@ -31,20 +31,16 @@ const mostrarBotonCita = computed(() => {
 });
 
 function agendarCita() {
-  // Por ahora, solo mostramos los datos en consola como pediste
   console.log("--- CITA AGENDADA TEMPORALMENTE ---");
   console.log(datosCita);
   alert(`Cita agendada para ${datosCita.nombre}. (Datos guardados en memoria)`);
   
-  // Cerramos el modal y limpiamos
   mostrarModalCita.value = false;
   Object.assign(datosCita, { nombre: '', rfc: '', licencia: '', correo: '' });
 }
 
-// Esta función se ejecuta cuando el componente se carga
 onMounted(async () => {
   try {
-    // Pedimos al backend los datos del vehículo con este ID
     const response = await axios.get(`http://localhost:3000/api/vehiculos/${vehiculoId}`);
     vehiculo.value = response.data;
   } catch (error) {
@@ -52,9 +48,8 @@ onMounted(async () => {
   }
 });
 
-// Función para el botón de "Regresar"
 function regresar() {
-  router.back(); // Este es el comando mágico
+  router.back();
 }
 
 function openModal(imageUrl) {
@@ -77,7 +72,6 @@ async function actualizarEstatus() {
       estatus: nuevoEstatus
     });
 
-    // Si eligen "Liberar", hacemos lo que dijiste: lo borramos
     if (nuevoEstatus === 'Liberar') {
       estatusMensaje.value = '¡Liberado! Se ocultará del inventario y se eliminará en 7 días.';
     } else {
@@ -208,9 +202,8 @@ async function actualizarEstatus() {
 </template>
 
 <style scoped>
-
 .detalle-container h1 {
-  color: white; /* Hacemos el título blanco */
+  color: white;
   margin-bottom: 1.5rem;
 }
 
@@ -272,7 +265,7 @@ async function actualizarEstatus() {
   cursor: pointer;
   font-weight: bold;
   margin-bottom: 1.5rem;
-  margin-left: 10px; /* Espacio entre botones */
+  margin-left: 10px;
   transition: background-color 0.3s;
 }
 .btn-editar:hover {
@@ -280,49 +273,48 @@ async function actualizarEstatus() {
 }
 
 .galeria-fotos img {
-  cursor: pointer; /* Le dice al usuario que la imagen es clickeable */
+  cursor: pointer;
   transition: transform 0.2s;
 }
 
 .galeria-fotos img:hover {
-  transform: scale(1.05); /* Un pequeño efecto al pasar el mouse */
+  transform: scale(1.05);
 }
 
 .image-modal-overlay {
-  position: fixed; /* Cubre toda la pantalla */
+  position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
   
-  background-color: rgba(0, 0, 0, 0.85); /* Fondo negro semi-transparente */
+  background-color: rgba(0, 0, 0, 0.85);
   
   display: flex;
   justify-content: center;
   align-items: center;
   
-  z-index: 1000; /* Se asegura de que esté por encima de todo */
+  z-index: 1000;
   cursor: pointer;
 }
 
 .image-modal-content {
   max-width: 90%;
   max-height: 90%;
-  object-fit: contain; /* Mantiene la proporción de la imagen */
+  object-fit: contain;
   border-radius: 8px;
-  cursor: default; /* El cursor normal sobre la imagen */
+  cursor: default;
 }
 
-/* --- Estilos para el selector de Estatus --- */
 .estatus-container {
   margin-top: 2rem;
   padding-top: 1rem;
 }
 .estatus-container h3 {
-  color: #ffffffff; /* O ajusta al color de tu tema */
+  color: #ffffffff;
 }
 .estatus-container p {
-  color: #ffffffff;
+  color: #bdc3c7;
   font-size: 0.9rem;
 }
 .estatus-select {
@@ -337,12 +329,11 @@ async function actualizarEstatus() {
   display: block;
   margin-top: 0.5rem;
   font-weight: bold;
-  color: #42b983; /* Verde éxito */
+  color: #42b983;
 }
 
-/* --- Estilos para el Botón de Cita --- */
 .btn-cita {
-  background: linear-gradient(to right, #3498db, #1953c8ff); /* Azul brillante */
+  background: linear-gradient(to right, #3498db, #1953c8ff);
   color: white;
   border: none;
   padding: 0.6rem 1rem;
@@ -357,14 +348,13 @@ async function actualizarEstatus() {
   background-color: #2980b9;
 }
 
-/* --- Estilos para el Modal de Formulario --- */
 .modal-overlay {
   position: fixed;
   top: 0; left: 0;
   width: 100vw; height: 100vh;
   background-color: rgba(0, 0, 0, 0.8);
   display: flex; justify-content: center; align-items: center;
-  z-index: 2000; /* Más alto que el modal de imagen */
+  z-index: 2000;
 }
 
 .modal-form-card {
@@ -385,7 +375,6 @@ async function actualizarEstatus() {
   margin-bottom: 1.5rem;
 }
 
-/* Reutilizamos estilos de inputs, pero aseguramos que se vean bien en el modal blanco */
 .modal-form-card input {
   width: 100%;
   padding: 0.8rem;
