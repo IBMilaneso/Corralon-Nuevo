@@ -222,6 +222,10 @@ th, td {
   text-align: left;
   border-bottom: 1px solid #ddd;
   vertical-align: middle;
+
+  font-size: 1.2rem;  
+  font-weight: 600;   
+  color: #2c3e50;
 }
 thead { background-color: #f8f9fa; }
 th { font-weight: 600; }

@@ -158,7 +158,7 @@ function resetForm() {
 
       <div class="campo">
         <label for="titulo">Tipo de Título/Documento:</label>
-        <select id="titulo" v-model="vehiculo.titulo">
+        <select id="titulo" v-model="vehiculo.titulo" class="estilo-input" required> 
           <option disabled value="">-- Selecciona una opción --</option>
           <option v-for="opcion in opcionesTitulo" :key="opcion" :value="opcion">
             {{ opcion }}
@@ -396,6 +396,24 @@ button:hover {
 
 .btn-reset-lateral:hover {
   background-color: #c82333; /* Tu color rojo de hover */
+}
+
+.estilo-input {
+  width: 100%;           /* Que ocupe todo el ancho disponible */
+  padding: 0.75rem;      /* Espacio interno para que no se vea apretado */
+  font-size: 1rem;       /* Tamaño de letra legible */
+  border: 1px solid #ccc;/* Borde gris suave */
+  border-radius: 5px;    /* Bordes ligeramente redondeados */
+  background-color: white; /* Fondo blanco */
+  color: #333;           /* Texto oscuro */
+  cursor: pointer;       /* Cambia el cursor a manita */
+  transition: border-color 0.3s; /* Suaviza el cambio de color al hacer clic */
+}
+
+/* Opcional: Cambia el color del borde cuando le das clic */
+.estilo-input:focus {
+  outline: none;         /* Quita el borde azul por defecto feo */
+  border-color: #3498db; /* Pone un borde azul moderno */
 }
 
 </style>
