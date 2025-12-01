@@ -3,11 +3,11 @@
     <div class="about-card">
       <div class="image-container">
         <img 
-          src="c:\Users\jevus\Downloads\MyFlow\Snapchat-1443653098.jpg" 
+          src="C:\Users\jevus\Downloads\MyFlow\1764536145542.jpg" 
           alt="Equipo Corralón"
         >
         <div class="overlay"></div>
-        <h1>Los Inexpertos y Leija Ciervo</h1>
+        <h1>Los Inexpertos</h1>
       </div>
 
       <div class="content">
@@ -17,7 +17,7 @@
           funcional.
         </p>
         <p>
-          Nuestro aplicacion permite un control exacto desde el ingreso hasta la liberación de un vehiculo, no nos importa si le pasa algo a su vehiculo 
+          Nuestra aplicacion permite un control exacto desde el ingreso hasta la liberación de un vehiculo, no nos importa si le pasa algo a su vehiculo 
           queremos que nos paguen pero tambien brindamos información de cada unidad tanto a las autoridades 
           como a los propietarios, y si los propietarios no vienen por el lo vendemos.
         </p>
