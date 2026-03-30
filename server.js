@@ -9,13 +9,13 @@ const app = express();
 const port = 3000;
 
 const dbConfig = {
-    user: 'TU_USUARIO_SMARTER',
-    password: 'TU_PASSWORD_SMARTER',
-    server: 'TU_SERVER_NAME',
-    database: 'TU_NOMBRE_BD',
+    user: 'db_ac7687_corralondb_admin',
+    password: 'passw0rd#',
+    server: 'sql5111.site4now.net',
+    database: 'db_ac7687_corralondb',
     options: {
-        encrypt: true, 
-        trustServerCertificate: true 
+        encrypt: false,
+        trustServerCertificate: true
     }
 };
 
