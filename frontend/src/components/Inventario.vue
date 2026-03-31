@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
+const API_BASE_URL = 'http://localhost:3000';
 const inventario = ref([]);
 const router = useRouter();
 const terminoBusqueda = ref('');
@@ -10,7 +11,7 @@ const mensajeSistema = ref('');
 
 async function cargarInventario() {
   try {
-    const response = await axios.get('http://localhost:3000/api/vehiculos');
+    const response = await axios.get(`${API_BASE_URL}/api/vehiculos`);
     inventario.value = response.data;
   } catch (error) {
     console.error('Error al obtener el inventario:', error);
@@ -54,7 +55,7 @@ async function eliminarVehiculo(id) {
   }
 
   try {
-    await axios.delete(`http://localhost:3000/api/vehiculos/${id}`);
+    await axios.delete(`${API_BASE_URL}/api/vehiculos/${id}`);
     mensajeSistema.value = 'Vehículo eliminado correctamente.';
     cargarInventario();
     setTimeout(() => mensajeSistema.value = '', 3000);
@@ -70,13 +71,19 @@ async function limpiarRegistrosViejos() {
   }
   
   try {
-    const response = await axios.delete('http://localhost:3000/api/maintenance/clean-releases');
+    const response = await axios.delete(`${API_BASE_URL}/api/maintenance/clean-releases`);
     mensajeSistema.value = response.data.message;
     cargarInventario();
     setTimeout(() => mensajeSistema.value = '', 5000);
   } catch (error) {
     alert('Error en mantenimiento');
   }
+}
+
+function getImageUrl(rutaOriginal) {
+  if (!rutaOriginal) return '';
+  const rutaCorregida = rutaOriginal.replace(/\\/g, '/');
+  return `${API_BASE_URL}/${rutaCorregida}`;
 }
 </script>
 
@@ -126,7 +133,7 @@ async function limpiarRegistrosViejos() {
           <td>
             <img 
               v-if="vehiculo.fotos && vehiculo.fotos.length > 0" 
-              :src="`http://localhost:3000/${vehiculo.fotos[0]}`" 
+              :src="getImageUrl(vehiculo.fotos[0])" 
               class="vehiculo-imagen"
             >
           </td>

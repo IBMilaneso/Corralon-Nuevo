@@ -5,6 +5,7 @@ import axios from 'axios';
 import EditarVehiculo from './EditarVehiculo.vue';
 import { reactive } from 'vue';
 
+const API_BASE_URL = 'http://localhost:3000';
 const route = useRoute();
 const puedeEditar = computed(() => route.query.modo === 'editar');
 const router = useRouter();
@@ -41,7 +42,7 @@ function agendarCita() {
 
 onMounted(async () => {
   try {
-    const response = await axios.get(`http://localhost:3000/api/vehiculos/${vehiculoId}`);
+    const response = await axios.get(`${API_BASE_URL}/api/vehiculos/${vehiculoId}`);
     vehiculo.value = response.data;
   } catch (error) {
     console.error('Error al cargar los detalles del vehículo:', error);
@@ -68,7 +69,7 @@ async function actualizarEstatus() {
     estatusMensaje.value = 'Guardando...';
     const nuevoEstatus = vehiculo.value.estatus;
 
-    await axios.patch(`http://localhost:3000/api/vehiculos/${vehiculo.value.id}/estatus`, {
+    await axios.patch(`${API_BASE_URL}/api/vehiculos/${vehiculo.value.id}/estatus`, {
       estatus: nuevoEstatus
     });
 
@@ -84,6 +85,11 @@ async function actualizarEstatus() {
   }
 }
 
+function getImageUrl(rutaOriginal) {
+  if (!rutaOriginal) return '';
+  const rutaCorregida = rutaOriginal.replace(/\\/g, '/');
+  return `${API_BASE_URL}/${rutaCorregida}`;
+}
 </script>
 
 <template>
@@ -135,7 +141,7 @@ async function actualizarEstatus() {
       <img 
         v-for="(foto, index) in vehiculo.fotos" 
         :key="index" 
-        :src="`http://localhost:3000/${foto}`" 
+        :src="getImageUrl(foto)" 
         alt="Foto del vehículo"
         @click="openModal(`http://localhost:3000/${foto}`)"
       >

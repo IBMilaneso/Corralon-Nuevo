@@ -2,6 +2,7 @@
 import { reactive, ref } from 'vue';
 import axios from 'axios';
 
+const API_BASE_URL = 'http://localhost:3000';
 const anioActual = new Date().getFullYear();
 const opcionesTitulo = [
   'Factura Original',
@@ -73,7 +74,7 @@ async function registrar() {
   }
 
   try {
-    const response = await axios.post('http://localhost:3000/api/registrar-vehiculo', formData, {
+    const response = await axios.post(`${API_BASE_URL}/api/registrar-vehiculo`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }

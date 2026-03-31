@@ -3,13 +3,16 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
+const API_BASE_URL = 'http://localhost:3000';
+
 const todosLosVehiculos = ref([]); 
 const terminoBusqueda = ref(''); 
 const router = useRouter();
 
 onMounted(async () => {
   try {
-    const response = await axios.get('http://localhost:3000/api/vehiculos');
+    // Usamos la variable en lugar del texto fijo
+    const response = await axios.get(`${API_BASE_URL}/api/vehiculos`);
     todosLosVehiculos.value = response.data;
   } catch (error) {
     console.error('Error al obtener el inventario:', error);
@@ -48,6 +51,13 @@ function formatFecha(timestamp) {
 function verDetalle(id) {
   router.push({ name: 'vehiculoDetalle', params: { id } });
 }
+
+function getImageUrl(rutaOriginal) {
+  if (!rutaOriginal) return '';
+  // Reemplaza las diagonales invertidas (\) por normales (/)
+  const rutaCorregida = rutaOriginal.replace(/\\/g, '/');
+  return `${API_BASE_URL}/${rutaCorregida}`;
+}
 </script>
 
 <template>
@@ -83,7 +93,7 @@ function verDetalle(id) {
           <td>
             <img 
               v-if="vehiculo.fotos && vehiculo.fotos.length > 0" 
-              :src="`http://localhost:3000/${vehiculo.fotos[0]}`" 
+              :src="getImageUrl(vehiculo.fotos[0])" 
               alt="Foto del vehículo" 
               class="vehiculo-imagen"
             >

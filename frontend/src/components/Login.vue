@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
+const API_BASE_URL = 'http://localhost:3000';
 const router = useRouter();
 const username = ref('');
 const password = ref('');
@@ -10,7 +11,7 @@ const errorMsg = ref('');
 
 async function iniciarSesion() {
   try {
-    const response = await axios.post('http://localhost:3000/api/login', {
+    const response = await axios.post(`${API_BASE_URL}/api/login`, {
       username: username.value,
       password: password.value
     });

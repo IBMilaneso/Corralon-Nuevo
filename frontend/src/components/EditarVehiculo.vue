@@ -9,6 +9,7 @@ const props = defineProps({
   }
 });
 
+const API_BASE_URL = 'http://localhost:3000';
 const vehiculo = ref(null);
 const fotosNuevas = ref([]);
 const mensaje = ref('');
@@ -20,7 +21,7 @@ const opcionesTitulo = [
 
 onMounted(async () => {
   try {
-    const response = await axios.get(`http://localhost:3000/api/vehiculos/${props.idVehiculo}`);
+    const response = await axios.get(`${API_BASE_URL}/api/vehiculos/${props.idVehiculo}`);
     vehiculo.value = response.data;
   } catch (error) {
     console.error("Error cargando datos para editar:", error);
@@ -47,7 +48,7 @@ async function guardarCambios() {
       formData.append('fotosNuevas', fotoObj.file);
     }
 
-    const response = await axios.put(`http://localhost:3000/api/vehiculos/${props.idVehiculo}`, formData, {
+    const response = await axios.put(`${API_BASE_URL}/api/vehiculos/${props.idVehiculo}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -90,6 +91,12 @@ function handleFileUpload(event) {
 
 function eliminarFotoNueva(index) {
   fotosNuevas.value.splice(index, 1);
+}
+
+function getImageUrl(rutaOriginal) {
+  if (!rutaOriginal) return '';
+  const rutaCorregida = rutaOriginal.replace(/\\/g, '/');
+  return `${API_BASE_URL}/${rutaCorregida}`;
 }
 </script>
 
@@ -137,7 +144,7 @@ function eliminarFotoNueva(index) {
         <label>Fotos Actuales (Haz clic en 'X' para eliminar)</label>
         <div class="foto-preview-gallery">
           <div v-for="(foto, index) in vehiculo.fotos" :key="foto" class="foto-preview-card">
-            <img :src="`http://localhost:3000/${foto}`" alt="Foto existente">
+            <img :src="getImageUrl(foto)" alt="Foto existente">
             <button type="button" @click.stop="eliminarFotoExistente(index)" class="btn-eliminar-foto">&times;</button>
           </div>
         </div>

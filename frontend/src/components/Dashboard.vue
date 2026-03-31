@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
+const API_BASE_URL = 'http://localhost:3000';
 const router = useRouter();
 const stats = ref({
   totalVehiculos: 0,
@@ -16,8 +17,8 @@ const filtroSeleccionado = ref('Recientes');
 onMounted(async () => {
   try {
     const [statsRes, inventarioRes] = await Promise.all([
-      axios.get('http://localhost:3000/api/stats'),
-      axios.get('http://localhost:3000/api/vehiculos')
+      axios.get(`${API_BASE_URL}/api/stats`),
+      axios.get(`${API_BASE_URL}/api/vehiculos`)
     ]);
 
     stats.value = statsRes.data;
@@ -47,13 +48,19 @@ const inventarioFiltrado = computed(() => {
 function verDetalle(id) {
   router.push({ name: 'vehiculoDetalle', params: { id } });
 }
+
+function getImageUrl(rutaOriginal) {
+  if (!rutaOriginal) return '';
+  const rutaCorregida = rutaOriginal.replace(/\\/g, '/');
+  return `${API_BASE_URL}/${rutaCorregida}`;
+}
 </script>
 
 <template>
   <div class="dashboard-view">
     
     <div class="header-banner">
-      <h1>Dashboard: Corralón {Localizacion}</h1>
+      <h1>Dashboard: Corralón Nuevo Laredo</h1>
       <p>Resumen de la operación del día.</p>
     </div>
     
@@ -99,7 +106,7 @@ function verDetalle(id) {
       >
         <img 
           v-if="vehiculo.fotos && vehiculo.fotos.length > 0" 
-          :src="`http://localhost:3000/${vehiculo.fotos[0]}`" 
+          :src="getImageUrl(vehiculo.fotos[0])" 
           alt="Foto del vehículo" 
           class="card-img"
         >
