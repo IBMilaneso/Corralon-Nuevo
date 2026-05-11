@@ -13,13 +13,10 @@
       <div class="content">
         <h2>Sobre Nosotros</h2>
         <p>
-          Bienvenido a <strong>Corralink</strong>. No sabemos lo que hacemos, este es nuestro proyecto para ingenieria en software y esta completo y 
-          funcional.
+          Bienvenido a <strong>Corralink</strong>. No sabemos lo que hacemos, este es nuestro proyecto funcional.
         </p>
         <p>
-          Nuestra aplicacion permite un control exacto desde el ingreso hasta la liberación de un vehiculo, no nos importa si le pasa algo a su vehiculo 
-          queremos que nos paguen pero tambien brindamos información de cada unidad tanto a las autoridades 
-          como a los propietarios, y si los propietarios no vienen por el lo vendemos.
+          Hola.
         </p>
         <p class="slogan">"Seguridad, Orden y Confianza."</p>
       </div>

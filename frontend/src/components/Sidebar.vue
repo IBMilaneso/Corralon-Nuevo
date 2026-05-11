@@ -38,6 +38,10 @@ function cerrarSesion() {
         <router-link to="/inventario" class="nav-link">
           <span class="icon">🚗</span> Inventario Actual
         </router-link>
+
+        <router-link to="/reportes" class="nav-link">
+          <span class="icon">📊</span> Reportes y Productividad
+        </router-link>
       </template>
     </nav>
 

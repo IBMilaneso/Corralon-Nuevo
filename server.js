@@ -6,16 +6,14 @@ const fs = require('fs');
 const sql = require('mssql');
 
 const app = express();
-const port = 3000;
+const port = 3000;  
 
 const dbConfig = {
-    user: 'db_ac7687_corralondb_admin',
-    password: 'passw0rd#',
-    server: 'sql5111.site4now.net',
-    database: 'db_ac7687_corralondb',
+    server: 'JIBELTRAN', // Al estar en tu misma compu, usamos localhost
+    database: 'CorralinkDB', // El nombre de la base de datos que creamos hoy
     options: {
-        encrypt: false,
-        trustServerCertificate: true
+        encrypt: false, // En local normalmente no necesitas cifrado SSL
+        trustServerCertificate: true // Importante para evitar errores de certificado en local
     }
 };
 
@@ -235,6 +233,29 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
+
+app.get('/api/reportes/productividad', async (req, res) => {
+    try {
+        const pool = await poolPromise;
+        
+        // Ejecutamos la consulta con agrupaciones que hicimos hace un momento
+        const result = await pool.request().query(`
+            SELECT 
+                estatus AS EstadoActual, 
+                COUNT(*) AS TotalVehiculos
+            FROM vehiculos
+            GROUP BY estatus
+        `);
+        
+        res.json(result.recordset);
+    } catch (err) {
+        console.error("Error al generar reporte:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
 app.listen(port, () => {
     console.log(`🚀 Servidor en ejecución en puerto ${port} (SQL Server Mode)`);
 });
+
