@@ -6,6 +6,7 @@ import Buscador from '../components/Buscador.vue'
 import VehiculoDetalle from '../components/VehiculoDetalle.vue';
 import SobreNosotros from '../components/SobreNosotros.vue';
 import Login from '../components/Login.vue';
+import Reportes from '../components/Reportes.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -44,6 +45,11 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: Login
+    },
+    {
+      path: '/reportes',
+      name: 'Reportes',
+      component: Reportes
     }
   ]
 })

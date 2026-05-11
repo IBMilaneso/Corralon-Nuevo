@@ -9,18 +9,20 @@ const app = express();
 const port = 3000;  
 
 const dbConfig = {
-    server: 'JIBELTRAN', // Al estar en tu misma compu, usamos localhost
-    database: 'CorralinkDB', // El nombre de la base de datos que creamos hoy
+    user: 'sa', // Usamos el superusuario local
+    password: 'Admin123', // La contraseña que le acabas de poner en el paso 6
+    server: 'JIBELTRAN', // El nombre de tu servidor como sale en tu captura, o puedes intentar 'localhost'
+    database: 'CorralinkDB', // Asegúrate de que este sea el nombre de tu base de datos
     options: {
-        encrypt: false, // En local normalmente no necesitas cifrado SSL
-        trustServerCertificate: true // Importante para evitar errores de certificado en local
+        encrypt: false,
+        trustServerCertificate: true
     }
 };
 
 const poolPromise = new sql.ConnectionPool(dbConfig)
     .connect()
     .then(pool => {
-        console.log('Conectado a SQL Server en SmarterASP');
+        console.log('Conectado');
         return pool;
     })
     .catch(err => {
