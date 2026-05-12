@@ -216,22 +216,21 @@ app.delete('/api/vehiculos/:id', async (req, res) => {
 
 
 app.post('/api/login', async (req, res) => {
-    try {
-        const { username, password } = req.body;
-        const pool = await poolPromise;
-        const result = await pool.request()
-            .input('user', sql.VarChar, username)
-            .input('pass', sql.VarChar, password)
-            .query("SELECT * FROM usuarios WHERE username = @user AND password = @pass");
+    const { username, password } = req.body;
+    const pool = await poolPromise;
+    const result = await pool.request()
+        .input('user', sql.VarChar, username)
+        .input('pass', sql.VarChar, password)
+        .query("SELECT username, rol FROM usuarios WHERE username = @user AND password = @pass");
 
-        if (result.recordset.length > 0) {
-            res.status(200).json({ success: true, user: result.recordset[0].username });
-        } else {
-            res.status(401).json({ success: false, message: 'Credenciales inválidas' });
-        }
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error en login' });
+    if (result.recordset.length > 0) {
+        res.status(200).json({ 
+            success: true, 
+            user: result.recordset[0].username,
+            rol: result.recordset[0].rol // Enviamos el rol al frontend
+        });
+    } else {
+        res.status(401).json({ success: false, message: 'Credenciales inválidas' });
     }
 });
 
