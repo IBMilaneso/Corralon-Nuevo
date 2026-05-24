@@ -215,13 +215,14 @@ app.delete('/api/vehiculos/:id', async (req, res) => {
 });
 
 
-app.post('/api/login', async (req, res) => {
+app.post('/api/login/empleados', async (req, res) => {
     const { username, password } = req.body;
     const pool = await poolPromise;
     const result = await pool.request()
         .input('user', sql.VarChar, username)
         .input('pass', sql.VarChar, password)
-        .query("SELECT username, rol FROM usuarios WHERE username = @user AND password = @pass");
+        // AQUI ESTÁ EL CAMBIO: FROM empleados
+        .query("SELECT username, rol FROM empleados WHERE username = @user AND password = @pass");
 
     if (result.recordset.length > 0) {
         res.status(200).json({ 

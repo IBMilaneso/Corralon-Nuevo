@@ -13,7 +13,7 @@ const errorMsg = ref('');
 
 async function iniciarSesion() {
   try {
-    const response = await axios.post(`${API_BASE_URL}/api/login`, {
+    const response = await axios.post(`${API_BASE_URL}/api/login/empleados`, {
       username: username.value,
       password: password.value
     });

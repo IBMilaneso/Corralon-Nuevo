@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import EditarVehiculo from './EditarVehiculo.vue';
 import { reactive } from 'vue';
+import ModalReclamo from './ModalReclamo.vue';
 
 const API_BASE_URL = 'http://localhost:3000';
 const route = useRoute();

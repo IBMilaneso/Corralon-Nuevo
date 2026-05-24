@@ -1,10 +1,10 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { useRouter } from 'vue-router';
 import axios from 'axios';
+import ModalDetalleVehiculo from '../components/ModalDetalleVehiculo.vue';
 
 const API_BASE_URL = 'http://localhost:3000';
-const router = useRouter();
+
 const stats = ref({
   totalVehiculos: 0,
   ingresosHoy: 0,
@@ -13,6 +13,11 @@ const stats = ref({
 
 const inventario = ref([]);
 const filtroSeleccionado = ref('Recientes');
+
+// Variables para el Modal
+const vehiculoSeleccionado = ref(null);
+const mostrarModalDetalle = ref(false);
+const esInvitado = ref(false); // Es false porque el Dashboard es solo para personal interno
 
 onMounted(async () => {
   try {
@@ -45,8 +50,10 @@ const inventarioFiltrado = computed(() => {
     return resultado;
 });
 
-function verDetalle(id) {
-  router.push({ name: 'vehiculoDetalle', params: { id } });
+// Esta función reemplaza a verDetalle
+function abrirModal(vehiculo) {
+  vehiculoSeleccionado.value = vehiculo;
+  mostrarModalDetalle.value = true;
 }
 
 function getImageUrl(rutaOriginal) {
@@ -102,7 +109,7 @@ function getImageUrl(rutaOriginal) {
         v-for="vehiculo in inventarioFiltrado" 
         :key="vehiculo.id" 
         class="vehiculo-card" 
-        @click="verDetalle(vehiculo.id)"
+        @click="abrirModal(vehiculo)"
       >
         <img 
           v-if="vehiculo.fotos && vehiculo.fotos.length > 0" 
@@ -123,6 +130,13 @@ function getImageUrl(rutaOriginal) {
     </div>
     
     <p v-if="inventarioFiltrado.length === 0" class="empty-message">Aún no hay vehículos registrados.</p>
+
+    <ModalDetalleVehiculo 
+      :mostrar="mostrarModalDetalle" 
+      :vehiculo="vehiculoSeleccionado" 
+      :esInvitado="esInvitado"
+      @cerrar="mostrarModalDetalle = false"
+    />
 
   </div>
 </template>
