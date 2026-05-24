@@ -19,9 +19,15 @@ async function iniciarSesion() {
     });
 
     if (response.data.success) {
-      // ¡Aquí es donde debe ir la lógica de JavaScript!
-      localStorage.setItem('userRol', response.data.rol); // Guardamos el rol real
+      // 1. Guardamos el rol con el nombre EXACTO que busca el Sidebar
+      localStorage.setItem('rolUsuario', response.data.rol); 
+      
+      // 2. Guardamos el nombre de usuario para que el Sidebar sepa que hay alguien conectado
+      localStorage.setItem('usuario', username.value); 
+      
+      // 3. (Opcional) Mantenemos esta por si la usas en otro lado
       localStorage.setItem('esAdmin', response.data.rol === 'Administrador'); 
+      
       window.location.href = '/'; 
     }
   } catch (error) {
