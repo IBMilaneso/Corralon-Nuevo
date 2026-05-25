@@ -105,17 +105,16 @@ function cerrarModal() {
                 🛡️ Es mi vehículo
               </button>
 
-              <button class="btn-accion btn-comprar" @click="emit('abrirCompra')">
+              <button 
+                v-if="vehiculo?.estatus === 'Para vender'"
+                class="btn-accion btn-comprar" 
+                @click="emit('abrirCompra')"
+              >
                 🛒 Me interesa comprarlo
               </button>
             </div>
-          </div>
 
-        </div>
-      </div>
-    </div>
-
-    <div v-if="mostrarLightbox" class="lightbox-overlay" @click.self="cerrarLightbox">
+          </div> </div> </div> </div> <div v-if="mostrarLightbox" class="lightbox-overlay" @click.self="cerrarLightbox">
       <button class="btn-cerrar-lightbox" @click="cerrarLightbox">✖ Cerrar</button>
       <img 
         :src="`${API_BASE_URL}/${vehiculo.fotos[indiceImagenActual]}`" 
@@ -123,8 +122,7 @@ function cerrarModal() {
       />
     </div>
 
-  </div>
-</template>
+  </div> </template>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
