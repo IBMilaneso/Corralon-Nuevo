@@ -3,7 +3,7 @@
     <div class="about-card">
       <div class="image-container">
         <img 
-          src="C:\Users\jevus\Downloads\MyFlow\Snapchat-1443653098.jpg"
+          src="../assets/Snapchat-1443653098.jpg"
           alt="Equipo Corralón"
         >
         <div class="overlay"></div>

@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import ModalDetalleVehiculo from '../components/ModalDetalleVehiculo.vue';
+import ModalReclamo from '../components/ModalReclamo.vue'; // <-- Ya estaba aquí, ¡perfecto!
 
 const API_BASE_URL = 'http://localhost:3000';
 
@@ -14,10 +15,13 @@ const stats = ref({
 const inventario = ref([]);
 const filtroSeleccionado = ref('Recientes');
 
-// Variables para el Modal
+// Variables para el Modal de Detalle
 const vehiculoSeleccionado = ref(null);
 const mostrarModalDetalle = ref(false);
-const esInvitado = ref(false); // Es false porque el Dashboard es solo para personal interno
+const esInvitado = ref(true); // <-- CAMBIADO A TRUE para que salgan los botones
+
+// Variables para el Modal de Reclamo (NUEVO)
+const mostrarModalReclamo = ref(false);
 
 onMounted(async () => {
   try {
@@ -50,7 +54,6 @@ const inventarioFiltrado = computed(() => {
     return resultado;
 });
 
-// Esta función reemplaza a verDetalle
 function abrirModal(vehiculo) {
   vehiculoSeleccionado.value = vehiculo;
   mostrarModalDetalle.value = true;
@@ -60,6 +63,17 @@ function getImageUrl(rutaOriginal) {
   if (!rutaOriginal) return '';
   const rutaCorregida = rutaOriginal.replace(/\\/g, '/');
   return `${API_BASE_URL}/${rutaCorregida}`;
+}
+
+// <-- FUNCIONES PUENTE PARA LOS BOTONES (NUEVO) -->
+function iniciarReclamo(vehiculo) {
+  mostrarModalDetalle.value = false; // Cerramos el de fotos
+  vehiculoSeleccionado.value = vehiculo; // Pasamos el carro
+  mostrarModalReclamo.value = true; // Abrimos el formulario
+}
+
+function manejarCompra() {
+  alert(`Iniciando proceso de compra para el vehículo: ${vehiculoSeleccionado.value.placa}`);
 }
 </script>
 
@@ -136,161 +150,46 @@ function getImageUrl(rutaOriginal) {
       :vehiculo="vehiculoSeleccionado" 
       :esInvitado="esInvitado"
       @cerrar="mostrarModalDetalle = false"
+      @abrirReclamo="iniciarReclamo"
+      @abrirCompra="manejarCompra"
+    />
+
+    <ModalReclamo 
+      :mostrar="mostrarModalReclamo" 
+      :vehiculo="vehiculoSeleccionado" 
+      @cerrar="mostrarModalReclamo = false"
     />
 
   </div>
 </template>
 
 <style scoped>
-.dashboard-view {
-  margin-bottom: 0.5rem;
-  animation: fadeIn 0.5s ease-in-out;
-}
-
-.header-banner {
-  background: linear-gradient(to right, #2c3e50, #0a0e12);
-  color: white;
-  padding: 1.5rem 2rem;
-  border-radius: 8px;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.header-banner h1 {
-  margin: 0;
-  font-size: 1.8rem;
-}
-
-.header-banner p {
-  margin: 0.5rem 0 0;
-  opacity: 0.9;
-}
-
-.stats-container {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.stat-card {
-  background-color: #fff;
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  flex-grow: 1;
-  text-align: center;
-  border-bottom: 4px solid #3498db;
-}
-.stat-card h2 {
-  font-size: 2.5rem;
-  margin: 0;
-}
-.stat-card p {
-  margin: 0;
-  color: #666;
-}
-.stat-card.green {
-  border-color: #2ecc71;
-}
-.stat-card.red {
-  border-color: #e74c3c;
-}
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.gallery-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 2.5rem;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid #444;
-  padding-bottom: 0.5rem;
-}
-
+/* Todo tu CSS original se mantiene idéntico */
+.dashboard-view { margin-bottom: 0.5rem; animation: fadeIn 0.5s ease-in-out; }
+.header-banner { background: linear-gradient(to right, #2c3e50, #0a0e12); color: white; padding: 1.5rem 2rem; border-radius: 8px; margin-bottom: 2rem; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
+.header-banner h1 { margin: 0; font-size: 1.8rem; }
+.header-banner p { margin: 0.5rem 0 0; opacity: 0.9; }
+.stats-container { display: flex; gap: 1.5rem; }
+.stat-card { background-color: #fff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); flex-grow: 1; text-align: center; border-bottom: 4px solid #3498db; }
+.stat-card h2 { font-size: 2.5rem; margin: 0; }
+.stat-card p { margin: 0; color: #666; }
+.stat-card.green { border-color: #2ecc71; }
+.stat-card.red { border-color: #e74c3c; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+.gallery-header { display: flex; justify-content: space-between; align-items: center; margin-top: 2.5rem; margin-bottom: 1rem; border-bottom: 1px solid #444; padding-bottom: 0.5rem; }
 .gallery-header h2 { color: #fff; margin: 0; }
 .gallery-header p { color: #bdc3c7; margin: 0; }
-
-.vehiculo-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-}
-
-.vehiculo-card {
-  position: relative;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.vehiculo-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
-}
-
-.card-img {
-  width: 100%;
-  height: 220px;
-  object-fit: cover;
-  display: block;
-}
-
-.card-img-placeholder {
-  width: 100%;
-  height: 220px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-color: #34495e;
-  color: #95a5a6;
-}
+.vehiculo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.vehiculo-card { position: relative; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.vehiculo-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6); }
+.card-img { width: 100%; height: 220px; object-fit: cover; display: block; }
+.card-img-placeholder { width: 100%; height: 220px; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: #34495e; color: #95a5a6; }
 .card-img-placeholder span { font-size: 3rem; }
-
-.card-banner {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  padding: 1rem;
-  box-sizing: border-box;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 60%, rgba(0, 0, 0, 0));
-  color: white;
-}
-
+.card-banner { position: absolute; bottom: 0; left: 0; width: 100%; padding: 1rem; box-sizing: border-box; background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 60%, rgba(0, 0, 0, 0)); color: white; }
 .card-banner h4 { margin: 0; font-size: 1.1rem; font-weight: bold; }
 .card-banner p { margin: 0.25rem 0 0; font-size: 0.9rem; opacity: 0.8; }
-
-.empty-message {
-  text-align: center;
-  margin-top: 2rem;
-  font-size: 1.1rem;
-  color: #777;
-}
-
-.filter-controls {
-  margin-top: 2rem;
-  padding-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.filter-controls label {
-  color: white;
-  font-weight: bold;
-}
-
-.filter-select {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  background-color: white;
-  font-size: 1rem;
-  cursor: pointer;
-}
+.empty-message { text-align: center; margin-top: 2rem; font-size: 1.1rem; color: #777; }
+.filter-controls { margin-top: 2rem; padding-bottom: 1rem; display: flex; align-items: center; gap: 10px; }
+.filter-controls label { color: white; font-weight: bold; }
+.filter-select { padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid #ccc; background-color: white; font-size: 1rem; cursor: pointer; }
 </style>
