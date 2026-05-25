@@ -3,8 +3,9 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
-// 1. IMPORTAMOS EL NUEVO COMPONENTE FLOTANTE
+// 1. IMPORTAMOS AMBOS MODALES (¡Aquí faltaba el de Reclamo!)
 import ModalDetalleVehiculo from '../components/ModalDetalleVehiculo.vue';
+import ModalReclamo from '../components/ModalReclamo.vue';
 
 const API_BASE_URL = 'http://localhost:3000';
 
@@ -12,16 +13,15 @@ const todosLosVehiculos = ref([]);
 const terminoBusqueda = ref(''); 
 const router = useRouter();
 
-// 2. NUEVAS VARIABLES PARA EL MODAL
+// 2. VARIABLES PARA LOS MODALES
 const vehiculoSeleccionado = ref(null);
 const mostrarModalDetalle = ref(false);
-const esInvitado = ref(true); // Para saber si mostramos botones de acción
+const esInvitado = ref(true); 
 
 const mostrarModalReclamo = ref(false);
 const vehiculoParaReclamo = ref(null);
 
 onMounted(async () => {
-  // Verificamos si es invitado o empleado logueado
   const rol = localStorage.getItem('rolUsuario');
   if (rol && rol !== '') {
     esInvitado.value = false;
@@ -64,9 +64,7 @@ function formatFecha(timestamp) {
   return new Date(timestamp).toLocaleDateString('es-MX');
 }
 
-// 3. CAMBIAMOS LA LÓGICA AL HACER CLIC EN LA TABLA
 function abrirModal(vehiculo) {
-  // En lugar de usar router.push, asignamos el vehículo y abrimos el modal
   vehiculoSeleccionado.value = vehiculo;
   mostrarModalDetalle.value = true;
 }
@@ -79,14 +77,13 @@ function getImageUrl(rutaOriginal) {
 
 // 4. FUNCIONES PREPARADAS PARA LOS BOTONES DEL MODAL
 function iniciarReclamo(vehiculo) {
-  mostrarModalDetalle.value = false; // Cerramos la galería de fotos
-  vehiculoParaReclamo.value = vehiculo; // Guardamos qué carro es
-  mostrarModalReclamo.value = true; // Abrimos el formulario de reclamo
+  mostrarModalDetalle.value = false; 
+  vehiculoParaReclamo.value = vehiculo; 
+  mostrarModalReclamo.value = true; 
 }
 
 function manejarCompra() {
   alert(`Iniciando proceso de compra para el vehículo: ${vehiculoSeleccionado.value.placa}`);
-  // Lógica futura para compras
 }
 </script>
 
@@ -147,8 +144,14 @@ function manejarCompra() {
       :vehiculo="vehiculoSeleccionado" 
       :esInvitado="esInvitado"
       @cerrar="mostrarModalDetalle = false"
-      @abrirReclamo="manejarReclamo"
+      @abrirReclamo="iniciarReclamo" 
       @abrirCompra="manejarCompra"
+    />
+
+    <ModalReclamo 
+      :mostrar="mostrarModalReclamo" 
+      :vehiculo="vehiculoParaReclamo" 
+      @cerrar="mostrarModalReclamo = false"
     />
 
   </div>

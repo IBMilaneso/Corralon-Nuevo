@@ -1,22 +1,19 @@
 <script setup>
 import { ref } from 'vue';
 
-// Definimos qué datos recibe el modal desde afuera (VehiculoDetalle)
+// 1. CORRECCIÓN AQUÍ: Cambiamos vehiculoInfo a vehiculo
 const props = defineProps({
   mostrar: Boolean,
-  vehiculoInfo: Object // Para mostrar la placa o modelo en el modal
+  vehiculo: Object 
 });
 
-// Definimos los eventos que este modal puede enviar hacia afuera
 const emit = defineEmits(['cerrar', 'enviarReclamo']);
 
-// Variables del formulario para el ciudadano
 const rfc = ref('');
 const licencia = ref('');
 const correo = ref('');
 
 function enviarFormulario() {
-  // Aquí empaquetamos los datos y los enviamos al componente padre
   const datosReclamo = {
     rfc: rfc.value,
     licencia: licencia.value,
@@ -45,7 +42,7 @@ function limpiarFormulario() {
       <div class="modal-body">
         <p class="instrucciones">
           Para iniciar el proceso de liberación del vehículo 
-          <strong>{{ vehiculoInfo?.marca }} {{ vehiculoInfo?.modelo }} ({{ vehiculoInfo?.placa }})</strong>, 
+          <strong>{{ vehiculo?.marca }} {{ vehiculo?.modelo }} ({{ vehiculo?.placa }})</strong>, 
           por favor ingresa tus datos de identificación oficial.
         </p>
 
@@ -77,14 +74,13 @@ function limpiarFormulario() {
 </template>
 
 <style scoped>
-/* Importamos Montserrat para mantener la estética premium de STEP */
+/* Tu CSS se queda exactamente igual, es perfecto */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
 * {
   font-family: 'Montserrat', sans-serif;
 }
 
-/* Fondo oscuro translúcido que cubre toda la pantalla */
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -93,10 +89,9 @@ function limpiarFormulario() {
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  backdrop-filter: blur(4px); /* Efecto cristalino moderno */
+  backdrop-filter: blur(4px); 
 }
 
-/* Contenedor blanco del modal */
 .modal-content {
   background: #ffffff;
   width: 90%;
