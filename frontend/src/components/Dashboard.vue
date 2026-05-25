@@ -2,7 +2,8 @@
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import ModalDetalleVehiculo from '../components/ModalDetalleVehiculo.vue';
-import ModalReclamo from '../components/ModalReclamo.vue'; // <-- Ya estaba aquí, ¡perfecto!
+import ModalReclamo from '../components/ModalReclamo.vue'; 
+import ModalCompra from '../components/ModalCompra.vue'; // <-- Importado correctamente
 
 const API_BASE_URL = 'http://localhost:3000';
 
@@ -20,8 +21,9 @@ const vehiculoSeleccionado = ref(null);
 const mostrarModalDetalle = ref(false);
 const esInvitado = ref(true); // <-- CAMBIADO A TRUE para que salgan los botones
 
-// Variables para el Modal de Reclamo (NUEVO)
+// Variables para los Modales de Acción
 const mostrarModalReclamo = ref(false);
+const mostrarModalCompra = ref(false); // <-- Variable correcta
 
 onMounted(async () => {
   try {
@@ -65,16 +67,18 @@ function getImageUrl(rutaOriginal) {
   return `${API_BASE_URL}/${rutaCorregida}`;
 }
 
-// <-- FUNCIONES PUENTE PARA LOS BOTONES (NUEVO) -->
+// <-- FUNCIONES PUENTE PARA LOS BOTONES -->
 function iniciarReclamo(vehiculo) {
   mostrarModalDetalle.value = false; // Cerramos el de fotos
   vehiculoSeleccionado.value = vehiculo; // Pasamos el carro
   mostrarModalReclamo.value = true; // Abrimos el formulario
 }
 
+// Función duplicada ELIMINADA, dejamos solo la que abre el modal
 function manejarCompra() {
-  alert(`Iniciando proceso de compra para el vehículo: ${vehiculoSeleccionado.value.placa}`);
-}
+  mostrarModalDetalle.value = false; // Cierra la galería
+  mostrarModalCompra.value = true;   // Abre el formulario de compra
+} 
 </script>
 
 <template>
@@ -158,6 +162,12 @@ function manejarCompra() {
       :mostrar="mostrarModalReclamo" 
       :vehiculo="vehiculoSeleccionado" 
       @cerrar="mostrarModalReclamo = false"
+    />
+
+    <ModalCompra 
+      :mostrar="mostrarModalCompra" 
+      :vehiculo="vehiculoSeleccionado" 
+      @cerrar="mostrarModalCompra = false"
     />
 
   </div>

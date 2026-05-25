@@ -3,9 +3,10 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
-// 1. IMPORTAMOS AMBOS MODALES (¡Aquí faltaba el de Reclamo!)
+// 1. IMPORTAMOS LOS 3 MODALES
 import ModalDetalleVehiculo from '../components/ModalDetalleVehiculo.vue';
 import ModalReclamo from '../components/ModalReclamo.vue';
+import ModalCompra from '../components/ModalCompra.vue';
 
 const API_BASE_URL = 'http://localhost:3000';
 
@@ -16,16 +17,15 @@ const router = useRouter();
 // 2. VARIABLES PARA LOS MODALES
 const vehiculoSeleccionado = ref(null);
 const mostrarModalDetalle = ref(false);
-const esInvitado = ref(true); 
+const esInvitado = ref(true); // <--- SIEMPRE SERÁ TRUE EN ESTA VISTA
 
 const mostrarModalReclamo = ref(false);
 const vehiculoParaReclamo = ref(null);
 
+const mostrarModalCompra = ref(false);
+
 onMounted(async () => {
-  const rol = localStorage.getItem('rolUsuario');
-  if (rol && rol !== '') {
-    esInvitado.value = false;
-  }
+  // BORRAMOS LA VALIDACIÓN DEL ROL PARA QUE NUNCA OCULTE LOS BOTONES EN EL BUSCADOR
 
   try {
     const response = await axios.get(`${API_BASE_URL}/api/vehiculos`);
@@ -83,7 +83,8 @@ function iniciarReclamo(vehiculo) {
 }
 
 function manejarCompra() {
-  alert(`Iniciando proceso de compra para el vehículo: ${vehiculoSeleccionado.value.placa}`);
+  mostrarModalDetalle.value = false; 
+  mostrarModalCompra.value = true;   
 }
 </script>
 
@@ -152,6 +153,12 @@ function manejarCompra() {
       :mostrar="mostrarModalReclamo" 
       :vehiculo="vehiculoParaReclamo" 
       @cerrar="mostrarModalReclamo = false"
+    />
+
+    <ModalCompra 
+      :mostrar="mostrarModalCompra" 
+      :vehiculo="vehiculoSeleccionado" 
+      @cerrar="mostrarModalCompra = false"
     />
 
   </div>
