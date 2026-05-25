@@ -83,7 +83,7 @@ function cerrarModal() {
               <span class="valor">{{ vehiculo.color }}</span>
             </div>
             <div class="detalle-item">
-              <span class="label">Título / VIN:</span>
+              <span class="label">Título:</span>
               <span class="valor">{{ vehiculo.titulo }}</span>
             </div>
           </div>
