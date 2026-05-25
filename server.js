@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
@@ -9,10 +10,10 @@ const app = express();
 const port = 3000;  
 
 const dbConfig = {
-    user: 'sa', // Usamos el superusuario local
-    password: 'Admin123', // La contraseña que le acabas de poner en el paso 6
-    server: 'JIBELTRAN', // El nombre de tu servidor como sale en tu captura, o puedes intentar 'localhost'
-    database: 'CorralinkDB', // Asegúrate de que este sea el nombre de tu base de datos
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    server: process.env.DB_SERVER,
+    database: process.env.DB_NAME,
     options: {
         encrypt: false,
         trustServerCertificate: true
