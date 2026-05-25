@@ -4,18 +4,17 @@ import { ref, computed } from 'vue';
 const props = defineProps({
   mostrar: Boolean,
   vehiculo: Object,
-  esInvitado: Boolean // Para saber si mostramos los botones de acción
+  esInvitado: Boolean
 });
 
+// Dejamos un solo emit que incluya todo lo que necesitas
 const emit = defineEmits(['cerrar', 'abrirReclamo', 'abrirCompra']);
 
 const API_BASE_URL = 'http://localhost:3000';
 
-// Control del Carrusel y Lightbox
 const indiceImagenActual = ref(0);
 const mostrarLightbox = ref(false);
 
-// Funciones del carrusel
 function cambiarImagen(index) {
   indiceImagenActual.value = index;
 }
@@ -28,7 +27,6 @@ function cerrarLightbox() {
   mostrarLightbox.value = false;
 }
 
-// Cerramos todo al salir
 function cerrarModal() {
   indiceImagenActual.value = 0;
   mostrarLightbox.value = false;
@@ -100,7 +98,10 @@ function cerrarModal() {
             <p class="texto-ayuda">Opciones disponibles para este vehículo:</p>
             
             <div class="botones-grid">
-              <button class="btn-accion btn-dueño" @click="emit('abrirReclamo')">
+              <button 
+                class="btn-accion btn-dueño" 
+                @click="$emit('abrirReclamo', vehiculo)"
+              >
                 🛡️ Es mi vehículo
               </button>
 
@@ -129,10 +130,9 @@ function cerrarModal() {
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 * { font-family: 'Montserrat', sans-serif; }
 
-/* OVERLAY Y CONTENEDOR DEL MODAL */
 .modal-overlay {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  background-color: rgba(15, 23, 42, 0.85); /* Fondo muy oscuro */
+  background-color: rgba(15, 23, 42, 0.85);
   backdrop-filter: blur(5px);
   display: flex; justify-content: center; align-items: center;
   z-index: 1000;
@@ -141,7 +141,7 @@ function cerrarModal() {
 .modal-card {
   background: #1e293b;
   width: 90%;
-  max-width: 1000px; /* Mucho más ancho para aprovechar la pantalla */
+  max-width: 1000px;
   max-height: 90vh;
   border-radius: 16px;
   position: relative;
@@ -165,15 +165,13 @@ function cerrarModal() {
 }
 .btn-cerrar-modal:hover { background: #ef4444; }
 
-/* GRID 50/50 */
 .modal-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* Mitad fotos, mitad info */
+  grid-template-columns: 1fr 1fr;
   color: #f8fafc;
-  overflow-y: auto; /* Por si la pantalla es muy bajita */
+  overflow-y: auto;
 }
 
-/* SECCIÓN DE FOTOS */
 .seccion-fotos {
   background: #0f172a;
   padding: 1.5rem;
@@ -213,7 +211,6 @@ function cerrarModal() {
 .miniatura:hover { opacity: 0.8; }
 .miniatura.activa { opacity: 1; border-color: #3b82f6; }
 
-/* SECCIÓN INFO */
 .seccion-info {
   padding: 2.5rem 2rem;
   display: flex; flex-direction: column;
@@ -236,7 +233,6 @@ function cerrarModal() {
 .detalle-motivo { background: rgba(255, 255, 255, 0.05); padding: 1.2rem; border-radius: 8px; margin-bottom: 2rem; }
 .valor-texto { margin: 0; font-size: 0.95rem; line-height: 1.5; color: #cbd5e1; }
 
-/* BOTONES */
 .acciones-container { margin-top: auto; }
 .divisor { border: 0; height: 1px; background: rgba(255, 255, 255, 0.1); margin-bottom: 1rem; }
 .texto-ayuda { color: #94a3b8; font-size: 0.9rem; margin-bottom: 1rem; text-align: center; }
@@ -250,7 +246,6 @@ function cerrarModal() {
 .btn-comprar { background: #27ae60; box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3); }
 .btn-comprar:hover { background: #219150; }
 
-/* LIGHTBOX */
 .lightbox-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.95);
   display: flex; justify-content: center; align-items: center; z-index: 2000;

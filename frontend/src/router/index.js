@@ -18,7 +18,7 @@ const router = createRouter({
       path: '/', 
       name: 'dashboard', 
       component: Dashboard, 
-      meta: { rolesPermitidos: ['Administrador', 'RolOperativo', 'RolCobranza'] } 
+      //meta: { rolesPermitidos: ['Administrador', 'RolOperativo', 'RolCobranza'] } 
     },
     { 
       path: '/registrar', 

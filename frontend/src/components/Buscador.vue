@@ -17,6 +17,9 @@ const vehiculoSeleccionado = ref(null);
 const mostrarModalDetalle = ref(false);
 const esInvitado = ref(true); // Para saber si mostramos botones de acción
 
+const mostrarModalReclamo = ref(false);
+const vehiculoParaReclamo = ref(null);
+
 onMounted(async () => {
   // Verificamos si es invitado o empleado logueado
   const rol = localStorage.getItem('rolUsuario');
@@ -75,9 +78,10 @@ function getImageUrl(rutaOriginal) {
 }
 
 // 4. FUNCIONES PREPARADAS PARA LOS BOTONES DEL MODAL
-function manejarReclamo() {
-  alert(`Iniciando reclamo para el vehículo: ${vehiculoSeleccionado.value.placa}`);
-  // Aquí más adelante abriremos el ModalReclamo.vue
+function iniciarReclamo(vehiculo) {
+  mostrarModalDetalle.value = false; // Cerramos la galería de fotos
+  vehiculoParaReclamo.value = vehiculo; // Guardamos qué carro es
+  mostrarModalReclamo.value = true; // Abrimos el formulario de reclamo
 }
 
 function manejarCompra() {
