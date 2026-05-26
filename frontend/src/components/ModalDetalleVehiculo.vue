@@ -88,9 +88,20 @@ function cerrarModal() {
             </div>
           </div>
 
-          <div class="detalle-motivo">
-            <span class="label">Motivo de Ingreso:</span>
-            <p class="valor-texto">{{ vehiculo.motivo }}</p>
+          <div class="seccion-multa-modal">
+            <h3>🚨 Estado Financiero del Vehículo</h3>
+            <div class="tarjeta-deuda-interna">
+              <div class="fila-deuda">
+                <span>Infracciones acumuladas:</span>
+                <p class="motivos-texto">{{ vehiculo?.motivo || 'Ninguna especificada' }}</p>
+              </div>
+              <div class="total-deuda-modal">
+                <span>Total a Liquidar:</span>
+                <span class="monto-rojo">
+                  ${{ vehiculo?.deuda_inicial ? vehiculo.deuda_inicial.toLocaleString('es-MX') : '0' }} MXN
+                </span>
+              </div>
+            </div>
           </div>
 
           <div class="acciones-container" v-if="esInvitado">
@@ -113,8 +124,12 @@ function cerrarModal() {
                 🛒 Me interesa comprarlo
               </button>
             </div>
-
-          </div> </div> </div> </div> <div v-if="mostrarLightbox" class="lightbox-overlay" @click.self="cerrarLightbox">
+          </div> 
+        </div> 
+      </div> 
+    </div> 
+    
+    <div v-if="mostrarLightbox" class="lightbox-overlay" @click.self="cerrarLightbox">
       <button class="btn-cerrar-lightbox" @click="cerrarLightbox">✖ Cerrar</button>
       <img 
         :src="`${API_BASE_URL}/${vehiculo.fotos[indiceImagenActual]}`" 
@@ -122,7 +137,8 @@ function cerrarModal() {
       />
     </div>
 
-  </div> </template>
+  </div> 
+</template>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
@@ -221,15 +237,75 @@ function cerrarModal() {
 .badge-anio { background: #3b82f6; padding: 0.4rem 1rem; border-radius: 20px; font-weight: 600; }
 
 .detalles-lista {
-  display: flex; flex-direction: column; gap: 1.2rem; margin-bottom: 2rem;
+  display: flex; flex-direction: column; gap: 1.2rem; margin-bottom: 1rem;
 }
 .detalle-item { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;}
 .label { font-size: 0.85rem; color: #94a3b8; text-transform: uppercase; }
 .valor { font-size: 1.05rem; font-weight: 500; }
 .placa { background: #f1c40f; color: #000; padding: 0.2rem 0.6rem; border-radius: 6px; font-weight: 700; }
 
-.detalle-motivo { background: rgba(255, 255, 255, 0.05); padding: 1.2rem; border-radius: 8px; margin-bottom: 2rem; }
-.valor-texto { margin: 0; font-size: 0.95rem; line-height: 1.5; color: #cbd5e1; }
+/* 👇 ESTILOS DE LA SECCIÓN DE MULTA ADAPTADOS AL DARK MODE 👇 */
+.seccion-multa-modal {
+  margin-bottom: 2rem;
+}
+
+.seccion-multa-modal h3 {
+  font-size: 1.05rem;
+  color: #f8fafc;
+  margin-bottom: 0.8rem;
+  font-weight: 600;
+}
+
+.tarjeta-deuda-interna {
+  background-color: rgba(220, 38, 38, 0.05);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-left: 4px solid #ef4444;
+  border-radius: 8px;
+  padding: 1.2rem;
+}
+
+.fila-deuda {
+  margin-bottom: 1rem;
+}
+
+.fila-deuda span {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  display: block;
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.motivos-texto {
+  font-size: 0.95rem;
+  color: #e2e8f0;
+  margin: 0;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.total-deuda-modal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px dashed rgba(239, 68, 68, 0.3);
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+}
+
+.total-deuda-modal span {
+  font-weight: 600;
+  color: #f8fafc;
+  font-size: 1rem;
+}
+
+.monto-rojo {
+  font-size: 1.4rem !important;
+  font-weight: 900 !important;
+  color: #ef4444 !important;
+  font-family: 'Courier New', Courier, monospace;
+}
 
 .acciones-container { margin-top: auto; }
 .divisor { border: 0; height: 1px; background: rgba(255, 255, 255, 0.1); margin-bottom: 1rem; }

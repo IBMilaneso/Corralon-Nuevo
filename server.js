@@ -9,6 +9,8 @@ const sql = require('mssql');
 const app = express();
 const port = 3000;  
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 const dbConfig = {
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
@@ -52,12 +54,11 @@ const upload = multer({ storage: storage });
 
 
 app.post('/api/registrar-vehiculo', upload.array('fotos', 20), async (req, res) => {
-  // 1. Extraemos los campos tradicionales y el nuevo campo de deuda
   const { placa, marca, modelo, anio, titulo, color, motivo, deuda_inicial } = req.body;
   
-  // Aquí tu lógica existente para procesar los nombres de las fotos...
-  // (Por ejemplo: const rutasFotos = req.files.map(f => f.path)...)
-  const fotosJson = JSON.stringify(rutasFotos || []); 
+  // file.path recupera la ruta relativa completa (ej. "uploads\\fotos-...")
+  const rutasFotos = req.files ? req.files.map(file => file.path) : [];
+  const fotosJson = JSON.stringify(rutasFotos); 
 
   try {
     const pool = await poolPromise;
@@ -70,7 +71,7 @@ app.post('/api/registrar-vehiculo', upload.array('fotos', 20), async (req, res) 
       .input('color', sql.VarChar(30), color)
       .input('motivo', sql.Text, motivo)
       .input('fotos', sql.Text, fotosJson)
-      .input('deuda_inicial', sql.Int, parseInt(deuda_inicial || 0)) // <-- NUEVO PARÁMETRO
+      .input('deuda_inicial', sql.Int, parseInt(deuda_inicial || 0)) 
       .query(`
         INSERT INTO Vehiculos (placa, marca, modelo, anio, titulo, color, motivo, fotos, deuda_inicial)
         VALUES (@placa, @marca, @modelo, @anio, @titulo, @color, @motivo, @fotos, @deuda_inicial)
