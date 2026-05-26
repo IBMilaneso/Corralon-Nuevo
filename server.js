@@ -320,6 +320,53 @@ app.post('/api/login/ciudadanos', async (req, res) => {
     }
 });
 
+app.post('/api/reclamos', async (req, res) => {
+  // Extraemos los datos que nos manda Vue.js
+  const { rfc, licencia, correo, vehiculoId } = req.body;
+
+  try {
+    const pool = await poolPromise;
+    await pool.request()
+      .input('vehiculo_id', sql.Int, vehiculoId)
+      .input('rfc', sql.VarChar(13), rfc)
+      .input('licencia', sql.VarChar(20), licencia)
+      .input('correo', sql.VarChar(100), correo)
+      .query(`
+        INSERT INTO SolicitudesReclamo (vehiculo_id, rfc, licencia, correo)
+        VALUES (@vehiculo_id, @rfc, @licencia, @correo)
+      `);
+      
+    res.status(201).json({ message: 'Solicitud de reclamo guardada exitosamente.' });
+  } catch (error) {
+    console.error('Error al guardar el reclamo:', error);
+    res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+});
+
+// 2. Ruta para registrar un Interés de Compra
+app.post('/api/compras', async (req, res) => {
+  const { nombre, telefono, correo, mensaje, vehiculoId } = req.body;
+
+  try {
+    const pool = await poolPromise;
+    await pool.request()
+      .input('vehiculo_id', sql.Int, vehiculoId)
+      .input('nombre', sql.VarChar(100), nombre)
+      .input('telefono', sql.VarChar(10), telefono)
+      .input('correo', sql.VarChar(100), correo)
+      .input('mensaje', sql.Text, mensaje)
+      .query(`
+        INSERT INTO SolicitudesCompra (vehiculo_id, nombre, telefono, correo, mensaje)
+        VALUES (@vehiculo_id, @nombre, @telefono, @correo, @mensaje)
+      `);
+      
+    res.status(201).json({ message: 'Solicitud de compra guardada exitosamente.' });
+  } catch (error) {
+    console.error('Error al guardar la compra:', error);
+    res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+});
+
 
 app.listen(port, () => {
     console.log(`🚀 Servidor en ejecución en puerto ${port} (SQL Server Mode)`);

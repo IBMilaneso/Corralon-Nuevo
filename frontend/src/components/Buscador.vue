@@ -86,6 +86,37 @@ function manejarCompra() {
   mostrarModalDetalle.value = false; 
   mostrarModalCompra.value = true;   
 }
+
+async function enviarReclamoAlServidor(datosReclamo) {
+  try {
+    // Le agregamos el ID del vehículo que tenemos seleccionado
+    const payload = { ...datosReclamo, vehiculoId: vehiculoParaReclamo.value.id };
+    
+    await axios.post(`${API_BASE_URL}/api/reclamos`, payload);
+    
+    mostrarModalReclamo.value = false;
+    alert("¡Tu solicitud de reclamo ha sido enviada con éxito!");
+  } catch (error) {
+    console.error("Error al enviar reclamo:", error);
+    alert("Hubo un error al enviar tu solicitud. Intenta de nuevo.");
+  }
+}
+
+async function enviarCompraAlServidor(datosCompra) {
+  try {
+    // Le agregamos el ID del vehículo que tenemos seleccionado
+    const payload = { ...datosCompra, vehiculoId: vehiculoSeleccionado.value.id };
+    
+    await axios.post(`${API_BASE_URL}/api/compras`, payload);
+    
+    mostrarModalCompra.value = false;
+    alert("¡Tu interés de compra ha sido registrado! Nos pondremos en contacto.");
+  } catch (error) {
+    console.error("Error al enviar compra:", error);
+    alert("Hubo un error al enviar tu solicitud. Intenta de nuevo.");
+  }
+}
+
 </script>
 
 <template>
@@ -153,12 +184,14 @@ function manejarCompra() {
       :mostrar="mostrarModalReclamo" 
       :vehiculo="vehiculoParaReclamo" 
       @cerrar="mostrarModalReclamo = false"
+      @enviarReclamo="enviarReclamoAlServidor" 
     />
 
     <ModalCompra 
       :mostrar="mostrarModalCompra" 
       :vehiculo="vehiculoSeleccionado" 
       @cerrar="mostrarModalCompra = false"
+      @enviarCompra="enviarCompraAlServidor"
     />
 
   </div>
