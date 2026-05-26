@@ -52,29 +52,35 @@ const upload = multer({ storage: storage });
 
 
 app.post('/api/registrar-vehiculo', upload.array('fotos', 20), async (req, res) => {
-    try {
-        const { placa, marca, modelo, anio, color, titulo, motivo } = req.body;
-        const fotosGuardadas = req.files ? req.files.map(file => file.path) : [];
-        const fotosJson = JSON.stringify(fotosGuardadas);
+  // 1. Extraemos los campos tradicionales y el nuevo campo de deuda
+  const { placa, marca, modelo, anio, titulo, color, motivo, deuda_inicial } = req.body;
+  
+  // Aquí tu lógica existente para procesar los nombres de las fotos...
+  // (Por ejemplo: const rutasFotos = req.files.map(f => f.path)...)
+  const fotosJson = JSON.stringify(rutasFotos || []); 
 
-        const pool = await poolPromise;
-        await pool.request()
-            .input('placa', sql.VarChar, placa)
-            .input('marca', sql.VarChar, marca)
-            .input('modelo', sql.VarChar, modelo)
-            .input('anio', sql.Int, anio)
-            .input('color', sql.VarChar, color)
-            .input('titulo', sql.VarChar, titulo)
-            .input('motivo', sql.Text, motivo)
-            .input('fotos', sql.Text, fotosJson)
-            .query(`INSERT INTO vehiculos (placa, marca, modelo, anio, color, titulo, motivo, fotos)
-                    VALUES (@placa, @marca, @modelo, @anio, @color, @titulo, @motivo, @fotos)`);
-        
-        res.status(200).json({ message: '¡Vehículo registrado con éxito!' });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error en el servidor al registrar' });
-    }
+  try {
+    const pool = await poolPromise;
+    await pool.request()
+      .input('placa', sql.VarChar(20), placa)
+      .input('marca', sql.VarChar(50), marca)
+      .input('modelo', sql.VarChar(50), modelo)
+      .input('anio', sql.Int, anio)
+      .input('titulo', sql.VarChar(100), titulo)
+      .input('color', sql.VarChar(30), color)
+      .input('motivo', sql.Text, motivo)
+      .input('fotos', sql.Text, fotosJson)
+      .input('deuda_inicial', sql.Int, parseInt(deuda_inicial || 0)) // <-- NUEVO PARÁMETRO
+      .query(`
+        INSERT INTO Vehiculos (placa, marca, modelo, anio, titulo, color, motivo, fotos, deuda_inicial)
+        VALUES (@placa, @marca, @modelo, @anio, @titulo, @color, @motivo, @fotos, @deuda_inicial)
+      `);
+
+    res.status(201).json({ message: 'Vehículo y multas registrados con éxito.' });
+  } catch (error) {
+    console.error('Error al insertar en la base de datos:', error);
+    res.status(500).json({ message: 'Error al registrar el vehículo.' });
+  }
 });
 
 
