@@ -7,6 +7,7 @@ import VehiculoDetalle from '../components/VehiculoDetalle.vue'
 import SobreNosotros from '../components/SobreNosotros.vue'
 import Login from '../components/Login.vue'
 import Reportes from '../components/Reportes.vue'
+import BandejaAdmin from '../components/BandejaAdmin.vue';
 
 // 1. IMPORTAMOS EL NUEVO COMPONENTE DE REGISTRO
 import RegistroCiudadano from '../components/RegistroCiudadano.vue'
@@ -47,6 +48,12 @@ const router = createRouter({
       path: '/registro-ciudadano', 
       name: 'registroCiudadano', 
       component: RegistroCiudadano 
+    },
+    {
+      path: '/bandeja',
+      name: 'BandejaAdmin',
+      component: BandejaAdmin,
+      meta: { rolesPermitidos: ['Administrador', 'RolCobranza'] }
     }
   ]
 });

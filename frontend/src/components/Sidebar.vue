@@ -52,6 +52,12 @@ function cerrarSesion() {
         </router-link>
 
         <router-link 
+          v-if="rolUsuario === 'Administrador' || rolUsuario === 'RolCobranza'" 
+          to="/bandeja" class="nav-link">
+          <span class="icon">📥</span> Bandeja Reclamos
+        </router-link>
+
+        <router-link 
           v-if="rolUsuario === 'Administrador'" 
           to="/reportes" class="nav-link">
           <span class="icon">📈</span> Productividad

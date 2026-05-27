@@ -375,6 +375,97 @@ app.post('/api/compras', async (req, res) => {
   }
 });
 
+// 1. Obtener todos los Reclamos (A prueba de nulos)
+app.get('/api/admin/reclamos', async (req, res) => {
+  try {
+    const pool = await poolPromise;
+    const result = await pool.request().query(`
+      SELECT 
+        sr.id, 
+        ISNULL(v.placa, 'N/A') AS placa, 
+        ISNULL(CONCAT(v.marca, ' ', v.modelo), 'Vehículo Eliminado') AS vehiculo, 
+        sr.rfc, 
+        sr.correo, 
+        ISNULL(sr.estatus, 'Pendiente') AS estatus, 
+        ISNULL(FORMAT(sr.fecha_solicitud, 'yyyy-MM-dd'), 'Sin fecha') AS fecha
+      FROM SolicitudesReclamo sr
+      LEFT JOIN Vehiculos v ON sr.vehiculo_id = v.id
+      ORDER BY sr.id DESC
+    `);
+    
+    // 👇 Esto imprimirá los datos en tu terminal de Node para verificar que sí hay filas
+    console.log("➡️ Datos enviados al frontend (Reclamos):", result.recordset); 
+    
+    res.status(200).json(result.recordset);
+  } catch (error) {
+    console.error('Error al obtener reclamos:', error);
+    res.status(500).json({ message: 'Error interno' });
+  }
+});
+
+// 2. Obtener todas las Ofertas de Compra (A prueba de nulos)
+app.get('/api/admin/compras', async (req, res) => {
+  try {
+    const pool = await poolPromise;
+    const result = await pool.request().query(`
+      SELECT 
+        sc.id, 
+        ISNULL(v.placa, 'N/A') AS placa, 
+        ISNULL(CONCAT(v.marca, ' ', v.modelo), 'Vehículo Eliminado') AS vehiculo, 
+        sc.nombre, 
+        sc.telefono, 
+        ISNULL(sc.estatus, 'Pendiente') AS estatus, 
+        ISNULL(FORMAT(sc.fecha_solicitud, 'yyyy-MM-dd'), 'Sin fecha') AS fecha
+      FROM SolicitudesCompra sc
+      LEFT JOIN Vehiculos v ON sc.vehiculo_id = v.id
+      ORDER BY sc.id DESC
+    `);
+    
+    console.log("➡️ Datos enviados al frontend (Compras):", result.recordset);
+    
+    res.status(200).json(result.recordset);
+  } catch (error) {
+    console.error('Error al obtener compras:', error);
+    res.status(500).json({ message: 'Error interno' });
+  }
+});
+
+// 3. Cambiar Estatus de un Reclamo
+app.patch('/api/admin/reclamos/:id/estatus', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { estatus } = req.body;
+    const pool = await poolPromise;
+    await pool.request()
+      .input('id', sql.Int, id)
+      .input('estatus', sql.VarChar(20), estatus)
+      .query(`UPDATE SolicitudesReclamo SET estatus = @estatus WHERE id = @id`);
+      
+    res.status(200).json({ message: 'Estatus actualizado' });
+  } catch (error) {
+    console.error('Error al actualizar reclamo:', error);
+    res.status(500).json({ message: 'Error interno' });
+  }
+});
+
+// 4. Cambiar Estatus de una Compra
+app.patch('/api/admin/compras/:id/estatus', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { estatus } = req.body;
+    const pool = await poolPromise;
+    await pool.request()
+      .input('id', sql.Int, id)
+      .input('estatus', sql.VarChar(20), estatus)
+      .query(`UPDATE SolicitudesCompra SET estatus = @estatus WHERE id = @id`);
+      
+    res.status(200).json({ message: 'Estatus actualizado' });
+  } catch (error) {
+    console.error('Error al actualizar compra:', error);
+    res.status(500).json({ message: 'Error interno' });
+  }
+});
+
 
 app.listen(port, () => {
     console.log(`🚀 Servidor en ejecución en puerto ${port} (SQL Server Mode)`);
