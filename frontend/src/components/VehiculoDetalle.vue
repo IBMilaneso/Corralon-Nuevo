@@ -91,6 +91,26 @@ async function actualizarEstatus() {
   }
 }
 
+// Función para calcular los días en el corralón
+function calcularDiasCorralon(fechaIngreso) {
+  if (!fechaIngreso) return 'Fecha desconocida';
+  
+  const fechaInicio = new Date(fechaIngreso);
+  const hoy = new Date();
+  
+  // Reseteamos las horas para contar solo días calendario
+  fechaInicio.setHours(0, 0, 0, 0);
+  hoy.setHours(0, 0, 0, 0);
+  
+  const diferenciaMilisegundos = hoy.getTime() - fechaInicio.getTime();
+  const dias = Math.floor(diferenciaMilisegundos / (1000 * 60 * 60 * 24));
+  
+  if (dias === 0) return 'Ingresó hoy';
+  if (dias === 1) return '1 día';
+  return `${dias} días`;
+}
+
+
 function getImageUrl(rutaOriginal) {
   if (!rutaOriginal) return '';
   const rutaCorregida = rutaOriginal.replace(/\\/g, '/');
@@ -122,9 +142,20 @@ function getImageUrl(rutaOriginal) {
     </div>
 
     <div class="tarjeta-info-maestra">
+      
       <div class="header-tarjeta">
-        <h1>{{ vehiculo.marca }} {{ vehiculo.modelo }}</h1>
-        <span class="placa-badge">{{ vehiculo.placa }}</span>
+        <div class="titulo-grupo">
+          <h1>{{ vehiculo.marca }} {{ vehiculo.modelo }}</h1>
+          <span class="placa-badge">{{ vehiculo.placa }}</span>
+        </div>
+        
+        <div class="tiempo-corralon-badge" :class="{ 'alerta-roja': calcularDiasCorralon(vehiculo.fecha_ingreso).includes('días') && parseInt(calcularDiasCorralon(vehiculo.fecha_ingreso)) > 30 }">
+          <span class="icono-reloj">⏳</span>
+          <div class="tiempo-info">
+            <span class="tiempo-label">Tiempo en patio:</span>
+            <span class="tiempo-valor">{{ calcularDiasCorralon(vehiculo.fecha_ingreso) }}</span>
+          </div>
+        </div>
       </div>
 
       <div v-if="puedeEditar" class="panel-control-estatus">
@@ -181,6 +212,13 @@ function getImageUrl(rutaOriginal) {
             <span class="label">Tipo de Documento</span>
             <span class="valor">{{ vehiculo.titulo }}</span>
           </div>
+          
+          <div class="detalle-item">
+            <span class="label">Costo de Multa</span>
+            <span class="valor multa-destacada">
+              {{ vehiculo.deuda_inicial ? `$${vehiculo.deuda_inicial.toLocaleString('es-MX')} MXN` : 'Por calcular' }}
+            </span>
+          </div>
           <div class="detalle-item motivo-box">
             <span class="label">Motivos de Ingreso Registrados</span>
             <span class="valor-texto">{{ vehiculo.motivo }}</span>
@@ -188,11 +226,14 @@ function getImageUrl(rutaOriginal) {
         </div>
       </div>
 
-    </div> <transition name="fade">
+    </div> 
+    
+    <transition name="fade">
       <div v-if="mostrarEditor && puedeEditar" class="contenedor-edicion">
         <EditarVehiculo :idVehiculo="vehiculoId" />
       </div>
     </transition>
+    
 
   </div>
 
@@ -258,35 +299,13 @@ function getImageUrl(rutaOriginal) {
 }
 
 /* --- BARRA SUPERIOR DE ACCIONES --- */
-.acciones-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-.botones-derecha {
-  display: flex; gap: 1rem;
-}
-
-.btn-regresar {
-  background: transparent; color: #94a3b8; border: 1px solid #475569;
-  padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; font-weight: 600;
-  transition: all 0.2s;
-}
+.acciones-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+.botones-derecha { display: flex; gap: 1rem; }
+.btn-regresar { background: transparent; color: #94a3b8; border: 1px solid #475569; padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
 .btn-regresar:hover { background: #334155; color: white; }
-
-.btn-editar {
-  background: linear-gradient(to right, #3b82f6, #2563eb); color: white; border: none;
-  padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; font-weight: 600;
-  transition: all 0.2s; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
-}
+.btn-editar { background: linear-gradient(to right, #3b82f6, #2563eb); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.2s; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3); }
 .btn-editar:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(59, 130, 246, 0.4); }
-
-.btn-cita {
-  background: linear-gradient(to right, #10b981, #059669); color: white; border: none;
-  padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; font-weight: 600;
-  transition: all 0.2s;
-}
+.btn-cita { background: linear-gradient(to right, #10b981, #059669); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
 
 /* --- TARJETA PRINCIPAL --- */
 .tarjeta-info-maestra {
@@ -300,25 +319,38 @@ function getImageUrl(rutaOriginal) {
 .header-tarjeta {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1.5rem;
   margin-bottom: 2.5rem;
   padding-bottom: 1rem;
   border-bottom: 1px dashed #334155;
 }
+.titulo-grupo { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;}
 .header-tarjeta h1 { margin: 0; color: #f8fafc; font-size: 2.2rem; font-weight: 900; letter-spacing: -0.5px;}
 .placa-badge { background: #f59e0b; color: #000; padding: 0.4rem 1rem; border-radius: 4px; font-weight: 800; font-size: 1.2rem; font-family: 'Courier New', monospace;}
 
-/* --- PANEL DE ESTATUS --- */
-.panel-control-estatus {
-  display: flex;
-  justify-content: space-between;
+/* --- CONTADOR DE DÍAS ESTILO TELEMETRÍA --- */
+.tiempo-corralon-badge {
+  display: inline-flex;
   align-items: center;
-  background: rgba(59, 130, 246, 0.1);
-  border-left: 4px solid #3b82f6;
-  padding: 1.5rem;
-  border-radius: 8px;
-  margin-bottom: 2.5rem;
+  gap: 12px;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 4px solid #3b82f6; 
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
+.tiempo-corralon-badge.alerta-roja { border-left-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+.icono-reloj { font-size: 1.5rem; }
+.tiempo-info { display: flex; flex-direction: column; }
+.tiempo-label { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+.tiempo-valor { font-size: 1.1rem; color: #f8fafc; font-weight: 700; }
+
+/* --- PANEL DE ESTATUS --- */
+.panel-control-estatus { display: flex; justify-content: space-between; align-items: center; background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin-bottom: 2.5rem; }
 .info-estatus h3 { margin: 0 0 0.2rem 0; color: #f8fafc; font-size: 1.1rem; }
 .info-estatus p { margin: 0; color: #94a3b8; font-size: 0.9rem; }
 .accion-estatus { display: flex; flex-direction: column; align-items: flex-end; width: 40%;}
@@ -330,30 +362,30 @@ function getImageUrl(rutaOriginal) {
 .seccion-galeria { margin-bottom: 2.5rem; }
 .seccion-galeria h3 { color: #cbd5e1; font-size: 1.1rem; margin-bottom: 1rem; }
 .galeria-fotos { display: flex; flex-wrap: wrap; gap: 1rem; }
-.foto-wrapper {
-  position: relative; width: 160px; height: 120px; border-radius: 8px; overflow: hidden;
-  border: 1px solid #334155; cursor: pointer;
-}
+.foto-wrapper { position: relative; width: 160px; height: 120px; border-radius: 8px; overflow: hidden; border: 1px solid #334155; cursor: pointer; }
 .foto-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
-.capa-zoom {
-  position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center;
-  color: white; font-weight: 600; opacity: 0; transition: opacity 0.3s;
-}
+.capa-zoom { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; color: white; font-weight: 600; opacity: 0; transition: opacity 0.3s; }
 .foto-wrapper:hover img { transform: scale(1.05); }
 .foto-wrapper:hover .capa-zoom { opacity: 1; }
 .texto-vacio { color: #64748b; font-style: italic; }
 
 /* --- FICHA TÉCNICA --- */
 .seccion-ficha-tecnica h3 { color: #cbd5e1; font-size: 1.1rem; margin-bottom: 1rem; }
-.grid-detalles {
-  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem;
-  background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 8px; border: 1px solid #334155;
-}
+.grid-detalles { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 8px; border: 1px solid #334155; }
 .detalle-item { display: flex; flex-direction: column; }
 .motivo-box { grid-column: span 3; border-top: 1px dashed #475569; padding-top: 1rem; margin-top: 0.5rem;}
 .label { font-size: 0.85rem; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 0.3rem;}
 .valor { font-size: 1.1rem; color: #f8fafc; font-weight: 500; }
 .valor-texto { font-size: 1rem; color: #e2e8f0; line-height: 1.5; }
+.multa-destacada {
+  color: #ef4444; /* Un rojo llamativo */
+  font-weight: 800;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  display: inline-block;
+  margin-top: 0.2rem;
+}
 
 /* --- ESTILOS DE CARGA --- */
 .pantalla-carga { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 50vh; color: #94a3b8; }
@@ -364,7 +396,6 @@ function getImageUrl(rutaOriginal) {
 .image-modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(15,23,42,0.95); display: flex; justify-content: center; align-items: center; z-index: 3000; cursor: zoom-out;}
 .image-modal-content { max-width: 90%; max-height: 90%; object-fit: contain; border-radius: 8px; cursor: default;}
 .btn-cerrar-lightbox { position: absolute; top: 20px; right: 30px; background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer;}
-
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 2000; }
 .modal-form-card { background: white; padding: 2.5rem; border-radius: 12px; width: 100%; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 .modal-form-card h2 { margin-top: 0; color: #1e293b; font-weight: 700;}

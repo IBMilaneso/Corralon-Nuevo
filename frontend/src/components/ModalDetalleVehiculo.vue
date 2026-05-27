@@ -32,6 +32,26 @@ function cerrarModal() {
   mostrarLightbox.value = false;
   emit('cerrar');
 }
+
+// Función para calcular los días en el corralón
+function calcularDiasCorralon(fechaIngreso) {
+  if (!fechaIngreso) return 'Fecha desconocida';
+  
+  const fechaInicio = new Date(fechaIngreso);
+  const hoy = new Date();
+  
+  // Reseteamos las horas para contar solo días calendario
+  fechaInicio.setHours(0, 0, 0, 0);
+  hoy.setHours(0, 0, 0, 0);
+  
+  const diferenciaMilisegundos = hoy.getTime() - fechaInicio.getTime();
+  const dias = Math.floor(diferenciaMilisegundos / (1000 * 60 * 60 * 24));
+  
+  if (dias === 0) return 'Ingresó hoy';
+  if (dias === 1) return '1 día';
+  return `${dias} días`;
+}
+
 </script>
 
 <template>
@@ -73,6 +93,13 @@ function cerrarModal() {
             <span class="badge-anio">{{ vehiculo.anio }}</span>
           </div>
 
+          <div class="tiempo-corralon-badge" :class="{ 'alerta-roja': calcularDiasCorralon(vehiculo.fecha_ingreso).includes('días') && parseInt(calcularDiasCorralon(vehiculo.fecha_ingreso)) > 30 }">
+            <span class="icono-reloj">⏳</span>
+            <div class="tiempo-info">
+              <span class="tiempo-label">Tiempo en patio:</span>
+              <span class="tiempo-valor">{{ calcularDiasCorralon(vehiculo.fecha_ingreso) }}</span>
+            </div>
+          </div>
           <div class="detalles-lista">
             <div class="detalle-item">
               <span class="label">Placa / Matrícula:</span>
@@ -98,7 +125,7 @@ function cerrarModal() {
               <div class="total-deuda-modal">
                 <span>Total a Liquidar:</span>
                 <span class="monto-rojo">
-                  ${{ vehiculo?.deuda_inicial ? vehiculo.deuda_inicial.toLocaleString('es-MX') : '0' }} MXN
+                  {{ vehiculo?.multa ? `$${vehiculo.multa.toLocaleString('es-MX')} MXN` : (vehiculo?.deuda_inicial ? `$${vehiculo.deuda_inicial.toLocaleString('es-MX')} MXN` : 'Por calcular') }}
                 </span>
               </div>
             </div>
@@ -306,6 +333,29 @@ function cerrarModal() {
   color: #ef4444 !important;
   font-family: 'Courier New', Courier, monospace;
 }
+
+/* --- CONTADOR DE DÍAS ESTILO TELEMETRÍA (Para el Modal) --- */
+.tiempo-corralon-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 4px solid #3b82f6; 
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.tiempo-corralon-badge.alerta-roja {
+  border-left-color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.icono-reloj { font-size: 1.5rem; }
+.tiempo-info { display: flex; flex-direction: column; }
+.tiempo-label { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+.tiempo-valor { font-size: 1.1rem; color: #f8fafc; font-weight: 700; }
 
 .acciones-container { margin-top: auto; }
 .divisor { border: 0; height: 1px; background: rgba(255, 255, 255, 0.1); margin-bottom: 1rem; }

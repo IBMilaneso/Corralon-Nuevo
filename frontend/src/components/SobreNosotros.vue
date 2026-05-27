@@ -13,12 +13,12 @@
       <div class="content">
         <h2>Sobre Nosotros</h2>
         <p>
-          Bienvenido a <strong>Corralink</strong>. No sabemos lo que hacemos, este es nuestro proyecto funcional.
+          Bienvenido a <strong> S T E P</strong>. No sabemos lo que hacemos, este es nuestro proyecto de Taller de base de datos.
         </p>
         <p>
           Hola.
         </p>
-        <p class="slogan">"Seguridad, Orden y Confianza."</p>
+        <p class="slogan">"Secure Transparency Eficcienty Platform."</p>
       </div>
     </div>
   </div>
