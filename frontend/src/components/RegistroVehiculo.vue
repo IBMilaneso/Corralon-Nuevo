@@ -83,7 +83,6 @@ function eliminarFoto(index){
 }
 
 async function registrar() {
-  // 1. Convertimos el arreglo de multas en una cadena separada por comas
   if (multasSeleccionadas.value.length > 0) {
     vehiculo.motivo = multasSeleccionadas.value.map(m => m.nombre).join(', ');
   } else {
@@ -94,6 +93,9 @@ async function registrar() {
   for (const key in vehiculo) {
     formData.append(key, vehiculo[key]);
   }
+
+  // 👇 ¡ESTA ES LA LÍNEA MÁGICA QUE FALTA! 👇
+  formData.append('deuda_inicial', totalMulta.value);
 
   for (const fotoObj of fotos.value) {
     formData.append('fotos', fotoObj.file);
