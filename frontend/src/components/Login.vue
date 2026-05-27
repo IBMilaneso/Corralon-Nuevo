@@ -33,6 +33,8 @@ async function iniciarSesion() {
       // Guardamos en el navegador quién entró
       localStorage.setItem('rolUsuario', response.data.rol);
       localStorage.setItem('usuario', tipoAcceso.value === 'empleado' ? identificador.value : response.data.nombre);
+
+      localStorage.setItem('correoUsuario' , identificador.value);
       
       // Mandamos al usuario a la pantalla principal
       window.location.href = '/'; 

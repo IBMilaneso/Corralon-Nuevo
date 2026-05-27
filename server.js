@@ -467,6 +467,48 @@ app.patch('/api/admin/compras/:id/estatus', async (req, res) => {
 });
 
 
+app.get('/api/ciudadano/solicitudes', async (req, res) => {
+  try {
+    const { correo } = req.query; 
+    const pool = await poolPromise;
+    
+    // Buscamos sus Reclamos (Corrección de fecha_solicitud)
+    const reclamos = await pool.request()
+      .input('correo', sql.VarChar, correo)
+      .query(`
+        SELECT 
+          sr.id, 'Reclamo' AS tipo, ISNULL(v.placa, 'N/A') AS placa, ISNULL(v.marca, 'Vehículo') as marca, 
+          ISNULL(v.modelo, 'Eliminado') as modelo, ISNULL(sr.estatus, 'Pendiente') AS estatus, 
+          ISNULL(FORMAT(sr.fecha_solicitud, 'yyyy-MM-dd'), 'Sin fecha') AS fecha, ISNULL(v.fotos, '[]') AS fotos
+        FROM SolicitudesReclamo sr
+        LEFT JOIN Vehiculos v ON sr.vehiculo_id = v.id
+        WHERE sr.correo = @correo
+      `);
+
+    // Buscamos sus Ofertas de Compra (Corrección de fecha_solicitud)
+    const compras = await pool.request()
+      .input('correo', sql.VarChar, correo)
+      .query(`
+        SELECT 
+          sc.id, 'Compra' AS tipo, ISNULL(v.placa, 'N/A') AS placa, ISNULL(v.marca, 'Vehículo') as marca, 
+          ISNULL(v.modelo, 'Eliminado') as modelo, ISNULL(sc.estatus, 'Pendiente') AS estatus, 
+          ISNULL(FORMAT(sc.fecha_solicitud, 'yyyy-MM-dd'), 'Sin fecha') AS fecha, ISNULL(v.fotos, '[]') AS fotos
+        FROM SolicitudesCompra sc
+        LEFT JOIN Vehiculos v ON sc.vehiculo_id = v.id
+        WHERE sc.correo = @correo
+      `);
+
+    // Juntamos todo en una sola lista y la enviamos
+    const solicitudes = [...reclamos.recordset, ...compras.recordset];
+    
+    res.status(200).json(solicitudes);
+  } catch (error) {
+    console.error('Error al obtener solicitudes del ciudadano:', error);
+    res.status(500).json({ message: 'Error interno' });
+  }
+});
+
+
 app.listen(port, () => {
     console.log(`🚀 Servidor en ejecución en puerto ${port} (SQL Server Mode)`);
 });
