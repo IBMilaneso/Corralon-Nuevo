@@ -14,7 +14,7 @@ const opcionesTitulo = [
 ];
 
 // --- 🚔 CATÁLOGO DE MULTAS REALES (MÉXICO) ---
-const costoArrastreGrua = 850; // Costo base fijo por ingresar al corralón
+const costoArrastreGrua = 850; 
 const catalogoInfracciones = [
   { id: 1, nombre: 'Vehículo abandonado en vía pública', costo: 1200 },
   { id: 2, nombre: 'Estacionarse en lugar prohibido / Doble fila', costo: 1500 },
@@ -25,7 +25,6 @@ const catalogoInfracciones = [
   { id: 7, nombre: 'Conducir en estado de ebriedad (Alcoholímetro)', costo: 10500 }
 ];
 
-// Arreglo reactivo para guardar las casillas que el usuario marque
 const multasSeleccionadas = ref([]);
 
 const vehiculo = reactive({
@@ -35,7 +34,7 @@ const vehiculo = reactive({
   anio: null,
   titulo: '',
   color: '',
-  motivo: '' // Aquí guardaremos la cadena separada por comas
+  motivo: '' 
 });
 
 const fotos = ref([]);
@@ -43,7 +42,7 @@ const fotoPrincipalPreview = ref(null);
 
 // --- 🧮 CALCULADORA EN TIEMPO REAL ---
 const totalMulta = computed(() => {
-  let total = costoArrastreGrua; // Siempre cobramos la grúa
+  let total = costoArrastreGrua; 
   multasSeleccionadas.value.forEach(multa => {
     total += multa.costo;
   });
@@ -94,7 +93,6 @@ async function registrar() {
     formData.append(key, vehiculo[key]);
   }
 
-  // 👇 ¡ESTA ES LA LÍNEA MÁGICA QUE FALTA! 👇
   formData.append('deuda_inicial', totalMulta.value);
 
   for (const fotoObj of fotos.value) {
@@ -121,13 +119,13 @@ function resetForm() {
     placa: '', marca: '', modelo: '', anio: null, titulo: '', color: '', motivo: ''
   });
   fotos.value = [];
-  multasSeleccionadas.value = []; // Limpiamos los checkboxes
+  multasSeleccionadas.value = []; 
 }
 </script>
 
 <template>
   <div class="formulario-container"> 
-    <button type="button" @click="resetForm" class="btn-reset-lateral">🔄️</button>
+    <button type="button" @click="resetForm" class="btn-reset-lateral" title="Limpiar Formulario">🔄️</button>
 
     <h2>Otro para la colección: Registra el Vehículo</h2>
     <form @submit.prevent="registrar">
@@ -218,14 +216,34 @@ function resetForm() {
 </template>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+* {
+  font-family: 'Montserrat', sans-serif;
+  box-sizing: border-box; /* Previene desbordamientos no deseados */
+}
+
 .formulario-container {
-  position: relative; max-width: 750px; margin: 2rem auto; padding: 2rem 2.5rem;
-  border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 12px;
+  position: relative; 
+  width: 100%;
+  max-width: 750px; 
+  margin: 2rem auto; 
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1); 
+  border-radius: 12px;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
   background: linear-gradient(135deg, #1e293b, #0f172a);
 }
 
-h2 { text-align: center; margin-bottom: 2rem; color: #f8fafc; font-family: 'Courier New', Courier, monospace; font-size: 1.8rem; }
+h2 { 
+  text-align: center; 
+  margin-top: 0;
+  margin-bottom: 2rem; 
+  color: #f8fafc; 
+  font-size: 1.8rem; 
+  font-weight: 700;
+  padding: 0 2rem; /* Deja espacio para que el botón no toque el texto */
+}
 
 .grid-2-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 0.5rem; }
 .campo { margin-bottom: 1rem; }
@@ -257,9 +275,9 @@ input::placeholder { color: #94a3b8; }
   background-color: #f8fafc; color: #0f172a; padding: 1.5rem; border-radius: 8px; margin-top: 1.5rem;
   border-left: 6px solid #10b981; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
-.ticket-cobro h3 { margin: 0 0 1rem 0; font-size: 1.2rem; border-bottom: 2px dashed #cbd5e1; padding-bottom: 0.5rem; color: #334155; }
+.ticket-cobro h3 { margin: 0 0 1rem 0; font-size: 1.2rem; border-bottom: 2px dashed #cbd5e1; padding-bottom: 0.5rem; color: #334155; font-weight: 700;}
 .lista-cobro { list-style: none; padding: 0; margin: 0 0 1rem 0; }
-.lista-cobro li { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.95rem; color: #475569; }
+.lista-cobro li { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.95rem; color: #475569; font-weight: 500;}
 .total-cobro { display: flex; justify-content: space-between; font-size: 1.3rem; font-weight: 900; color: #0f172a; border-top: 2px dashed #cbd5e1; padding-top: 1rem; }
 
 .btn-registrar { width: 100%; padding: 1rem; border: none; border-radius: 8px; background: linear-gradient(to right, #ef4444, #b91c1c); color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px; margin-top: 1rem; }
@@ -274,6 +292,34 @@ input::placeholder { color: #94a3b8; }
 .btn-eliminar-foto { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border-radius: 50%; background-color: rgba(239, 68, 68, 0.9); color: white; border: none; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; cursor: pointer; transition: background-color 0.2s; }
 .btn-eliminar-foto:hover { background-color: #b91c1c; }
 
-.btn-reset-lateral{ position: absolute; top: 20px; right: -25px; width: 50px; height: 50px; background-color: #334155; border: 2px solid #1e293b; border-radius: 50%; color: white; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 10; }
-.btn-reset-lateral:hover { background-color: #ef4444; transform: rotate(180deg); }
+/* CORRECCIÓN: Botón lateral ahora vive dentro del contenedor */
+.btn-reset-lateral { 
+  position: absolute; 
+  top: 20px; 
+  right: 20px; 
+  width: 45px; 
+  height: 45px; 
+  background-color: rgba(51, 65, 85, 0.8); 
+  border: 1px solid #475569; 
+  border-radius: 50%; 
+  color: white; 
+  font-size: 1.2rem; 
+  cursor: pointer; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  transition: all 0.3s; 
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
+  z-index: 10; 
+}
+.btn-reset-lateral:hover { 
+  background-color: #ef4444; 
+  border-color: #ef4444;
+  transform: rotate(180deg); 
+}
+
+@media (max-width: 768px) {
+  .grid-2-col { grid-template-columns: 1fr; }
+  .formulario-container { padding: 1.5rem; }
+}
 </style>

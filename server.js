@@ -151,7 +151,7 @@ app.get('/api/stats', async (req, res) => {
 app.put('/api/vehiculos/:id', upload.array('fotosNuevas', 20), async (req, res) => {
     try {
         const id = req.params.id;
-        const { placa, marca, modelo, anio, color, titulo, motivo } = req.body;
+        const { placa, marca, modelo, anio, color, titulo, motivo, deuda_inicial } = req.body;
         const fotosActuales = JSON.parse(req.body.fotosActualesJson || '[]');
         const fotosNuevas = req.files ? req.files.map(f => f.path) : [];
         const fotosJson = JSON.stringify([...fotosActuales, ...fotosNuevas]);
@@ -167,11 +167,12 @@ app.put('/api/vehiculos/:id', upload.array('fotosNuevas', 20), async (req, res) 
             .input('titulo', sql.VarChar, titulo)
             .input('motivo', sql.Text, motivo)
             .input('fotos', sql.Text, fotosJson)
+            .input('deuda_inicial', sql.Int, parseInt(deuda_inicial || 0))
             .query(`UPDATE vehiculos 
                     SET placa=@placa, marca=@marca, modelo=@modelo, anio=@anio, color=@color, 
-                        titulo=@titulo, motivo=@motivo, fotos=@fotos
+                        titulo=@titulo, motivo=@motivo, fotos=@fotos, deuda_inicial=@deuda_inicial
                     WHERE id=@id`);
-
+            
         res.status(200).json({ message: '¡Vehículo actualizado!' });
     } catch (error) {
         console.error(error);
