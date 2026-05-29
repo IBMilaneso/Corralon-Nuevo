@@ -18,7 +18,7 @@ const mostrarEditor = ref(false);
 const isModalVisible = ref(false);
 const selectedImageUrl = ref('');
 
-const estatusOpciones = ['Sin especificar', 'Para triturar', 'Para vender', 'Liberar'];
+const estatusOpciones = ['Sin especificar', 'Para triturar', 'Para vender', 'Liberado'];
 const estatusMensaje = ref('');
 
 const mostrarModalCita = ref(false);
@@ -45,6 +45,11 @@ onMounted(async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/api/vehiculos/${vehiculoId}`);
     vehiculo.value = response.data;
+    
+    if (!vehiculo.value.estatus) {
+      vehiculo.value.estatus = 'Sin especificar';
+    }
+    
   } catch (error) {
     console.error('Error al cargar los detalles del vehículo:', error);
   }
@@ -74,7 +79,7 @@ async function actualizarEstatus() {
       estatus: nuevoEstatus
     });
 
-    if (nuevoEstatus === 'Liberar') {
+    if (nuevoEstatus === 'Liberado') {
       estatusMensaje.value = '¡Liberado! Oculto del inventario. Eliminación en 7 días.';
     } else {
       estatusMensaje.value = '¡Estatus actualizado con éxito!';
