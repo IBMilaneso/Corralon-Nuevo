@@ -88,7 +88,7 @@ app.post('/api/registrar-vehiculo', upload.array('fotos', 20), async (req, res) 
 app.get('/api/vehiculos', async (req, res) => {
     try {
         const pool = await poolPromise;
-        const result = await pool.request().query("SELECT * FROM vehiculos WHERE liberado_el IS NULL ORDER BY fecha_ingreso DESC");
+        const result = await pool.request().query("SELECT * FROM vehiculos ORDER BY fecha_ingreso DESC");
 
         const vehiculos = result.recordset.map(v => ({
             ...v,
