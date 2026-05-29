@@ -187,17 +187,13 @@ app.patch('/api/vehiculos/:id/estatus', async (req, res) => {
         const { estatus } = req.body; 
         const pool = await poolPromise;
 
-        // 🛡️ AQUÍ ESTÁ LA CORRECCIÓN: Ahora dice 'Liberado'
-        const query = estatus === 'Liberado' 
-            ? "UPDATE vehiculos SET estatus = @estatus, liberado_el = GETDATE() WHERE id = @id"
-            : "UPDATE vehiculos SET estatus = @estatus, liberado_el = NULL WHERE id = @id";
-
+        // 🛡️ AHORA LLAMAMOS AL STORED PROCEDURE
         await pool.request()
-            .input('id', sql.Int, id)
-            .input('estatus', sql.VarChar, estatus)
-            .query(query);
+            .input('IdVehiculo', sql.Int, id)        
+            .input('Estatus', sql.VarChar, estatus)   
+            .execute('sp_LiberarVehiculo');//aqui le metemos el sp de una
 
-        res.status(200).json({ message: 'Estatus actualizado' });
+        res.status(200).json({ message: 'Estatus actualizado vía Stored Procedure' });
     } catch (error) { 
         console.error(error);
         res.status(500).json({ message: 'Error al actualizar estatus' });
