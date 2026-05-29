@@ -382,6 +382,7 @@ app.get('/api/admin/reclamos', async (req, res) => {
     const result = await pool.request().query(`
       SELECT 
         sr.id, 
+
         ISNULL(v.placa, 'N/A') AS placa, 
         ISNULL(CONCAT(v.marca, ' ', v.modelo), 'Vehículo Eliminado') AS vehiculo, 
         sr.rfc, 
@@ -506,6 +507,55 @@ app.get('/api/ciudadano/solicitudes', async (req, res) => {
     console.error('Error al obtener solicitudes del ciudadano:', error);
     res.status(500).json({ message: 'Error interno' });
   }
+});
+
+app.post('/api/vehiculos/:id/liberar', async (req, res) => {
+    const vehiculoId = req.params.id;
+    // Si en un futuro quieres guardar quién lo liberó o cuánto pagó, lo recibes aquí:
+    // const { usuario_libera, monto_pagado } = req.body; 
+
+    try {
+        const pool = await poolPromise;
+        const transaction = new sql.Transaction(pool);
+        
+        await transaction.begin();
+        const request = new sql.Request(transaction);
+
+        // PASO 1: Cambiar el estatus y poner la fecha de liberación
+        await request
+            .input('id', sql.Int, vehiculoId)
+            .input('estatus', sql.VarChar, 'Liberado')
+            .query(`
+                UPDATE vehiculos 
+                SET estatus = @estatus, liberado_el = GETDATE() 
+                WHERE id = @id
+            `);
+
+        // PASO 2 (Opcional a futuro): Insertar en una tabla de pagos/historial
+        /*
+        await request
+            .input('vehiculo_id', sql.Int, vehiculoId)
+            .query(`
+                INSERT INTO Historial (vehiculo_id, accion, fecha)
+                VALUES (@vehiculo_id, 'Liberación', GETDATE())
+            `);
+        */
+
+        // Confirmar la transacción (Guardar en disco)
+        await transaction.commit();
+        
+        res.status(200).json({ message: 'Vehículo liberado correctamente con transacción.' });
+
+    } catch (error) {
+        console.error('Error en la transacción, aplicando Rollback:', error);
+        
+        // Si hay error, cancelamos todo para proteger la base de datos
+        if (transaction && transaction.isActive) {
+            await transaction.rollback();
+        }
+        
+        res.status(500).json({ message: 'Error interno, no se pudo liberar el vehículo.' });
+    }
 });
 
 

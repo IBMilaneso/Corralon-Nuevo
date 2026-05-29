@@ -123,7 +123,7 @@ function getImageUrl(rutaOriginal) {
             <th>Modelo</th>
             <th>Año</th>
             <th>Fecha</th>
-            <th class="center-text">Acciones</th> 
+            <th>Multa</th> <th class="center-text">Acciones</th> 
           </tr>
         </thead>
         <tbody>
@@ -147,6 +147,10 @@ function getImageUrl(rutaOriginal) {
             <td>{{ vehiculo.modelo }}</td>
             <td>{{ vehiculo.anio }}</td>
             <td class="fecha-text">{{ formatFecha(vehiculo.fecha_ingreso) }}</td>
+            
+            <td class="resaltado" style="color: #ef4444;">
+              {{ vehiculo.deuda_inicial ? '$' + vehiculo.deuda_inicial.toLocaleString('es-MX') + ' MXN' : 'Por calcular' }}
+            </td>
             
             <td class="acciones-td center-text">
               <button 
