@@ -6,10 +6,11 @@ import axios from 'axios';
 const router = useRouter();
 const API_BASE_URL = 'http://localhost:3000';
 
-// Variables del formulario
+// Variables del formulario actualizadas para la nueva base de datos
 const formulario = ref({
   nombre: '',
-  apellidos: '',
+  apellido_paterno: '',
+  apellido_materno: '',
   rfc: '',
   licencia: '',
   correo: '',
@@ -38,7 +39,7 @@ async function registrarCiudadano() {
     }
   } catch (error) {
     if (error.response && error.response.data.message) {
-      mensajeError.value = error.response.data.message; // Muestra "El correo o RFC ya están registrados"
+      mensajeError.value = error.response.data.message; 
     } else {
       mensajeError.value = 'Ocurrió un error al intentar registrarte. Intenta más tarde.';
     }
@@ -59,14 +60,19 @@ async function registrarCiudadano() {
 
       <form @submit.prevent="registrarCiudadano" class="formulario">
         
+        <div class="campo">
+          <label>Nombre(s):</label>
+          <input type="text" v-model="formulario.nombre" placeholder="Ej. Juan" required>
+        </div>
+
         <div class="grid-2-columnas">
           <div class="campo">
-            <label>Nombre(s):</label>
-            <input type="text" v-model="formulario.nombre" placeholder="Ej. Juan" required>
+            <label>Apellido Paterno:</label>
+            <input type="text" v-model="formulario.apellido_paterno" placeholder="Ej. Pérez" required>
           </div>
           <div class="campo">
-            <label>Apellidos:</label>
-            <input type="text" v-model="formulario.apellidos" placeholder="Ej. Pérez García" required>
+            <label>Apellido Materno:</label>
+            <input type="text" v-model="formulario.apellido_materno" placeholder="Ej. García" required>
           </div>
         </div>
 

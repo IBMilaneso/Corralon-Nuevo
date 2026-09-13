@@ -263,8 +263,9 @@ app.get('/api/reportes/productividad', async (req, res) => {
 
 app.post('/api/registro/ciudadanos', async (req, res) => {
     try {
-        const { nombre, apellidos, rfc, licencia, correo, password } = req.body;
-        const pool = await poolPromise;
+        // 1. Recibimos los dos apellidos de forma independiente desde el cuerpo de la petición
+        const { nombre, apellido_paterno, apellido_materno, rfc, licencia, correo, password } = req.body;
+        const pool = await adminPoolPromise; // o poolPromise, dependiendo de la versión de tu archivo
 
         // Validamos que el correo o RFC no existan ya en la base de datos
         const checkUser = await pool.request()
@@ -279,16 +280,17 @@ app.post('/api/registro/ciudadanos', async (req, res) => {
             });
         }
 
-        // Insertamos al nuevo ciudadano
+        // 2. Insertamos al nuevo ciudadano mapeando exactamente las nuevas columnas
         await pool.request()
             .input('nombre', sql.VarChar, nombre)
-            .input('apellidos', sql.VarChar, apellidos)
+            .input('apellido_paterno', sql.VarChar, apellido_paterno)
+            .input('apellido_materno', sql.VarChar, apellido_materno)
             .input('rfc', sql.VarChar, rfc)
             .input('licencia', sql.VarChar, licencia)
             .input('correo', sql.VarChar, correo)
-            .input('password', sql.VarChar, password) // Nota: en un entorno real de producción, esto se encripta
-            .query(`INSERT INTO usuarios (nombre, apellidos, rfc, num_licencia, correo, password) 
-                    VALUES (@nombre, @apellidos, @rfc, @licencia, @correo, @password)`);
+            .input('password', sql.VarChar, password)
+            .query(`INSERT INTO usuarios (nombre, apellido_paterno, apellido_materno, rfc, num_licencia, correo, password) 
+                    VALUES (@nombre, @apellido_paterno, @apellido_materno, @rfc, @licencia, @correo, @password)`);
 
         res.status(200).json({ success: true, message: 'Registro exitoso. Ya puedes iniciar sesión.' });
     } catch (error) {
